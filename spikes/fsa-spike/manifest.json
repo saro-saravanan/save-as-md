@@ -1,0 +1,8 @@
+{
+  "manifest_version": 3,
+  "name": "SaveMD spike",
+  "version": "0.0.1",
+  "permissions": ["offscreen", "downloads", "downloads.ui", "contextMenus"],
+  "background": { "service_worker": "bg.js" },
+  "action": { "default_title": "Probe folder access" }
+}
