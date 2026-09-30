@@ -4,8 +4,9 @@ import { assembleDocument, remoteResults } from '../lib/assemble.js';
 import { joinPath, vscodeFileUrl } from '../lib/paths.js';
 
 const PROTECTED = /cannot access|cannot be scripted|chrome:\/\/|chrome-extension:\/\/|extensions gallery|webstore/i;
+const PROTECTED_TEXT = "This page can't be saved: the browser doesn't allow extensions on it.";
+const EMPTY_TEXT = "Couldn't find anything to save here. Right-click the SaveMD button → Pick an area to save…";
 const fmt = (n) => n.toLocaleString('en-US');
-const pad = (n) => String(n).padStart(2, '0');
 const hostOf = (url) => {
   try {
     return new URL(url).hostname;
@@ -16,6 +17,15 @@ const hostOf = (url) => {
 
 export function createSaveFlow(deps) {
   return { save };
+
+  // The page may be gone by the time a notice is answered (tab closed, link followed): treat as dismissed.
+  async function quietToast(tabId, toast) {
+    try {
+      return await deps.page.toast(tabId, toast);
+    } catch {
+      return null;
+    }
+  }
 
   async function save(tab, opts = {}) {
     try {
@@ -38,13 +48,17 @@ export function createSaveFlow(deps) {
     const mode = settings.siteModes[hostOf(tab.url)] || 'auto';
     const res = await deps.page.capture(tab.id, { scope, mode, redditMode: settings.redditMode });
     if (res.cancelled) return { status: 'cancelled' };
+    if (res.protectedPage) {
+      await deps.badge(tab.id, PROTECTED_TEXT);
+      return { status: 'error' };
+    }
     if (res.error) {
       await deps.page.toast(tab.id, { tone: 'error', text: `Couldn't save: ${res.error}` });
       return { status: 'error' };
     }
     const capture = res.capture;
     if (capture.wordCount < 5 && capture.images.length === 0) {
-      await deps.page.toast(tab.id, { tone: 'error', text: "Couldn't find anything to save here. Right-click the SaveMD button → Pick an area to save…" });
+      await deps.page.toast(tab.id, { tone: 'error', text: EMPTY_TEXT });
       return { status: 'empty' };
     }
 
@@ -74,7 +88,7 @@ export function createSaveFlow(deps) {
 
     let replace = false;
     if (previous && previous.target === targetId) {
-      const choice = await deps.page.toast(tab.id, {
+      const choice = await quietToast(tab.id, {
         tone: 'ask',
         text: `You saved this page on ${previous.savedAt.slice(0, 10)}.`,
         actions: [{ id: 'update', label: 'Update existing' }, { id: 'new', label: 'Save new copy' }],
@@ -86,14 +100,18 @@ export function createSaveFlow(deps) {
 
     const now = deps.now();
     let folderName = replace ? previous.folderName : folderNameFor(now, capture.title);
-    // Downloads can't check for an existing folder, so a new copy gets a time suffix.
-    if (!replace && previous?.target === targetId && target.kind === 'downloads') folderName += ` ${pad(now.getHours())}${pad(now.getMinutes())}`;
+    // Downloads overwrites on a name clash, so pick a folder name that isn't taken yet.
+    if (!replace && target.kind === 'downloads') folderName = await deps.downloads.freeFolderName(folderName);
 
     const jobId = deps.newId();
-    const { failedUrls } = await deps.offscreen.fetchImages(jobId, capture.images);
+    const { failedUrls, usable = 0 } = await deps.offscreen.fetchImages(jobId, capture.images);
     const pageData = {};
     if (failedUrls.length) {
       for (const r of await deps.page.fetchInPage(tab.id, failedUrls)) if (r.dataUrl) pageData[r.url] = r.dataUrl;
+    }
+    if (capture.wordCount < 5 && usable + Object.keys(pageData).length === 0) {
+      await quietToast(tab.id, { tone: 'error', text: EMPTY_TEXT });
+      return { status: 'empty' };
     }
     const writeTarget = target.kind === 'folder' ? { kind: 'folder', key: target.key } : { kind: 'downloads' };
     const result = await deps.offscreen.write({ jobId, capture, target: writeTarget, folderName, replace, pageData });
@@ -112,7 +130,7 @@ export function createSaveFlow(deps) {
     }
 
     const openUrl = await openUrlFor(target, result, downloadIds, settings);
-    const choice = await deps.page.toast(tab.id, savedToast(capture, result.stats, { openUrl, downloads: target.kind === 'downloads', fellBack }));
+    const choice = await quietToast(tab.id, savedToast(capture, result.stats, { openUrl, downloads: target.kind === 'downloads', fellBack }));
     if (choice === 'open') await deps.openExternal(tab.id, openUrl);
     if (choice === 'folder') deps.downloads.show(downloadIds.at(-1));
     if (choice === 'undo') await undo(tab, { target, result, downloadIds, key, remember });
@@ -138,13 +156,13 @@ export function createSaveFlow(deps) {
       delete saved[key];
       await deps.settings.patch({ saved });
     }
-    await deps.page.toast(tab.id, { tone: 'ok', text: 'Removed.', timeoutMs: 3000 });
+    await quietToast(tab.id, { tone: 'ok', text: 'Removed.', timeoutMs: 3000 });
   }
 
   async function report(tab, err) {
     const message = err?.message || String(err);
     if (PROTECTED.test(message)) {
-      await deps.badge(tab.id, "This page can't be saved: the browser doesn't allow extensions on it.");
+      await deps.badge(tab.id, PROTECTED_TEXT);
       return;
     }
     try {

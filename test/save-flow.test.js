@@ -23,7 +23,7 @@ function makeDeps(over = {}) {
     },
     offscreen: {
       checkPermission: vi.fn(async () => over.permission ?? 'granted'),
-      fetchImages: vi.fn(async () => ({ failedUrls: over.failedUrls ?? [] })),
+      fetchImages: vi.fn(async () => ({ failedUrls: over.failedUrls ?? [], usable: over.usable ?? 1 })),
       write: vi.fn(async (args) => ({ ok: true, folderName: args.folderName, markdownFile: 'T.md', stats: over.stats ?? { saved: 2, failed: 0, total: 2 }, blobFiles: [{ path: 'T.md', url: 'blob:1' }] })),
       remove: vi.fn(async () => ({ ok: true })),
       copy: vi.fn(async () => ({ ok: true })),
@@ -33,6 +33,7 @@ function makeDeps(over = {}) {
       remove: vi.fn(async () => {}),
       absolutePath: vi.fn(async () => 'C:\\Users\\me\\Downloads\\WebClips\\F\\T.md'),
       show: vi.fn(),
+      freeFolderName: vi.fn(async (name) => (over.takenFolders ?? []).includes(name) ? `${name} (2)` : name),
     },
     folders: { pick: vi.fn(async () => over.pickResult ?? true) },
     settings: {
@@ -167,9 +168,9 @@ describe('save flow', () => {
   // Review Focus #4
   it('keeps a same-day "new copy" in Downloads separate', async () => {
     const previous = { target: 'downloads', folderName: '2026-09-30 T', savedAt: '2026-09-30T09:00:00.000Z', downloadIds: [1, 2] };
-    const deps = makeDeps({ settings: { destination: 'downloads', saved: { [KEY]: previous } }, toastAnswers: ['new'] });
+    const deps = makeDeps({ settings: { destination: 'downloads', saved: { [KEY]: previous } }, toastAnswers: ['new'], takenFolders: ['2026-09-30 T'] });
     await createSaveFlow(deps).save(TAB);
-    expect(deps.downloads.write).toHaveBeenCalledWith('2026-09-30 T 1405', expect.any(Array));
+    expect(deps.downloads.write).toHaveBeenCalledWith('2026-09-30 T (2)', expect.any(Array));
     expect(deps.downloads.remove).not.toHaveBeenCalled();
   });
 
@@ -179,5 +180,49 @@ describe('save flow', () => {
     expect((await createSaveFlow(deps).save(TAB)).status).toBe('empty');
     expect(deps.offscreen.write).not.toHaveBeenCalled();
     expect(lastToast(deps).text).toBe("Couldn't find anything to save here. Right-click the SaveMD button → Pick an area to save…");
+  });
+
+  describe('final review fixes', () => {
+    it('never overwrites an existing Downloads folder, even for selections', async () => {
+      const deps = makeDeps({ settings: { destination: 'downloads' }, takenFolders: ['2026-09-30 T'] });
+      await createSaveFlow(deps).save(TAB, { scope: 'selection' });
+      expect(deps.downloads.write).toHaveBeenCalledWith('2026-09-30 T (2)', expect.any(Array));
+    });
+
+    it('still reports success when the page goes away before the notice is answered', async () => {
+      const deps = makeDeps();
+      let calls = 0;
+      deps.page.toast = vi.fn(async () => { calls++; throw new Error('The message port closed before a response was received.'); });
+      expect((await createSaveFlow(deps).save(TAB)).status).toBe('saved');
+      expect(calls).toBe(1);
+      expect(deps.badge).not.toHaveBeenCalled();
+    });
+
+    it('treats a closed duplicate prompt as a cancel, not an error', async () => {
+      const previous = { target: 'folder:default', folderName: '2026-09-01 T', savedAt: '2026-09-01T10:00:00.000Z' };
+      const deps = makeDeps({ settings: { saved: { [KEY]: previous } } });
+      deps.page.toast = vi.fn(async () => { throw new Error('The message port closed before a response was received.'); });
+      expect((await createSaveFlow(deps).save(TAB)).status).toBe('cancelled');
+      expect(deps.badge).not.toHaveBeenCalled();
+    });
+
+    it('badges PDF tabs instead of suggesting Pick an area', async () => {
+      const deps = makeDeps({ capture: vi.fn(async () => ({ protectedPage: true })) });
+      expect((await createSaveFlow(deps).save(TAB)).status).toBe('error');
+      expect(deps.badge).toHaveBeenCalledWith(7, "This page can't be saved: the browser doesn't allow extensions on it.");
+      expect(deps.offscreen.write).not.toHaveBeenCalled();
+    });
+
+    it('does not write a folder when no words and no usable images remain', async () => {
+      const deps = makeDeps({ captureExtra: { wordCount: 2 }, usable: 0 });
+      expect((await createSaveFlow(deps).save(TAB)).status).toBe('empty');
+      expect(deps.offscreen.write).not.toHaveBeenCalled();
+      expect(lastToast(deps).text).toBe("Couldn't find anything to save here. Right-click the SaveMD button → Pick an area to save…");
+    });
+
+    it('still saves an image-only page', async () => {
+      const deps = makeDeps({ captureExtra: { wordCount: 0 }, usable: 1 });
+      expect((await createSaveFlow(deps).save(TAB)).status).toBe('saved');
+    });
   });
 });

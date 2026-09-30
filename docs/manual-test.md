@@ -20,3 +20,8 @@ Rebuild with `npm run build`, then click reload on the SaveMD card in chrome://e
 | 14 | chrome://extensions, click the button | Red "!" badge with explanation |
 | 15 | Site with strict CSP (e.g. github.com) | Notice still styled and clickable |
 | 16 | Alt+Shift+S | Same as clicking the button |
+| 17 | Open a PDF in Chrome, click the button | Red "!" badge, not "Pick an area" |
+| 18 | First run: choose the folder in the popup | Popup closes by itself, save continues |
+| 19 | Pick an area, wait 40 s before clicking; save, hover the notice 40 s, then Undo | Both still work |
+| 20 | Save, then immediately follow a link | No "Couldn't save" error on the next page |
+| 21 | Save two different selections of the same page to Downloads | Two folders ("… (2)"), nothing overwritten |

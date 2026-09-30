@@ -39,8 +39,11 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
   await syncMenus(tab.url);
 });
 
-chrome.runtime.onMessage.addListener((msg) => {
-  if (msg?.type === 'folder-ready') resolveFolderRequest(msg.requestId, msg.ok);
+chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
+  if (msg?.type === 'folder-ready') {
+    resolveFolderRequest(msg.requestId, msg.ok);
+    sendResponse({ ok: true }); // lets the folder page's await settle so it can close itself
+  }
   // 'keepalive' needs no handling: receiving it is enough to keep the worker alive.
 });
 

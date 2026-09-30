@@ -3,6 +3,8 @@ import { isRedditThread, redditJsonUrl } from '../lib/reddit.js';
 
 export async function runCapture({ scope = 'page', mode = 'auto', redditMode = 'top' } = {}, env) {
   const { doc, url, fetchImpl, pickElement, selectionHtml } = env;
+  // Chrome's PDF viewer: the page is only an <embed>, so there's nothing to extract.
+  if (doc.contentType === 'application/pdf') return { protectedPage: true };
 
   if (scope === 'page' && isRedditThread(url)) {
     try {

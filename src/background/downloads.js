@@ -1,4 +1,7 @@
 import { offscreenApi } from './offscreen-client.js';
+import { withSuffix } from '../lib/filenames.js';
+
+const escapeRegex = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
 export const downloadsWriter = {
   async write(folderName, blobFiles) {
@@ -22,6 +25,14 @@ export const downloadsWriter = {
     for (const id of ids ?? []) {
       await chrome.downloads.removeFile(id).catch(() => {});
       await chrome.downloads.erase({ id });
+    }
+  },
+  // Downloads overwrites on name clashes, so find a WebClips folder name with no existing files.
+  async freeFolderName(name) {
+    for (let n = 1; ; n++) {
+      const candidate = withSuffix(name, n);
+      const taken = await chrome.downloads.search({ filenameRegex: `WebClips[\\\\/]${escapeRegex(candidate)}[\\\\/]`, exists: true });
+      if (!taken.length) return candidate;
     }
   },
   async absolutePath(id) {

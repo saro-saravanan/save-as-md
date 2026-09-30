@@ -6,7 +6,12 @@ import { pickElement } from './picker.js';
 if (!window.__savemdLoaded) {
   window.__savemdLoaded = true;
   chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
-    handle(msg).then(sendResponse, (err) => sendResponse({ error: err?.message || String(err) }));
+    // Picking an area or answering a notice can outlast the service worker's 30 s idle timeout;
+    // a pending reply doesn't count as activity, so ping it while we wait.
+    const keepalive = setInterval(() => chrome.runtime.sendMessage({ type: 'keepalive' }).catch(() => {}), 20000);
+    handle(msg)
+      .then(sendResponse, (err) => sendResponse({ error: err?.message || String(err) }))
+      .finally(() => clearInterval(keepalive));
     return true;
   });
 }

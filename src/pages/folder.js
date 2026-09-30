@@ -31,7 +31,7 @@ $('go').addEventListener('click', async () => {
       $('status').textContent = 'Access was not allowed.';
       return;
     }
-    await chrome.runtime.sendMessage({ type: 'folder-ready', requestId, ok: true });
+    await chrome.runtime.sendMessage({ type: 'folder-ready', requestId, ok: true }).catch(() => {});
     window.close();
   } catch (err) {
     $('status').textContent = err.name === 'AbortError' ? 'No folder chosen.' : err.message;

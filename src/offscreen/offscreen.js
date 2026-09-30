@@ -18,7 +18,10 @@ async function handle(msg) {
     case 'fetch-images': {
       const fetched = await fetchImages(msg.images);
       pending.set(msg.jobId, fetched);
-      return { failedUrls: msg.images.filter((img, i) => !fetched[i].ok && img.url).map((img) => img.url) };
+      return {
+        failedUrls: msg.images.filter((img, i) => !fetched[i].ok && img.url).map((img) => img.url),
+        usable: fetched.filter((f) => f.ok && !f.tiny).length,
+      };
     }
     case 'write':
       return write(msg);

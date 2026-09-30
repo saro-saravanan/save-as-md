@@ -44,4 +44,10 @@ describe('runCapture', () => {
     expect(res.capture.modeUsed).toBe('pick');
     expect(res.capture.markdown).toContain('Some rendered text');
   });
+
+  it('flags PDF viewer tabs as protected', async () => {
+    const e = env();
+    e.doc = { contentType: 'application/pdf' };
+    expect(await runCapture({ scope: 'page' }, e)).toEqual({ protectedPage: true });
+  });
 });
