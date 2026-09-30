@@ -1,0 +1,26 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>SaveMD options</title>
+<style>
+  :root { color-scheme: light dark; }
+  body { font: 14px system-ui, -apple-system, "Segoe UI", sans-serif; margin: 24px auto; max-width: 560px; padding: 0 16px; color: #1f2328; background: #fff; }
+  h1 { font-size: 18px; } h2 { font-size: 14px; margin: 24px 0 8px; }
+  input[type=text] { width: 100%; box-sizing: border-box; font: inherit; padding: 6px 8px; }
+  .hint { color: #59636e; font-size: 13px; } .warn { color: #9a6700; font-size: 13px; }
+  button { font: inherit; padding: 6px 12px; cursor: pointer; }
+  @media (prefers-color-scheme: dark) { body { background: #0d1117; color: #e6edf3; } .hint { color: #9198a1; } .warn { color: #d29922; } }
+</style></head>
+<body>
+<h1>SaveMD</h1>
+<h2>Save folder</h2>
+<p><strong id="folder-name"></strong> <button id="change">Change…</button></p>
+<h2>Full path of that folder</h2>
+<input id="path" type="text" placeholder="C:\Users\you\OneDrive\Clips">
+<p class="hint">Chrome doesn't tell extensions where a folder is. Paste its path so "Open in VS Code" works.</p>
+<p id="path-warning" class="warn" hidden>That path doesn't end with the folder you chose.</p>
+<h2>Default destination</h2>
+<label><input type="radio" name="dest" id="dest-folder" value="folder"> The save folder above</label><br>
+<label><input type="radio" name="dest" id="dest-downloads" value="downloads"> Downloads\WebClips</label>
+<h2>Keyboard shortcut</h2>
+<p class="hint">Default Alt+Shift+S. <a href="#" id="shortcuts">Change shortcut</a></p>
+<script src="options.js"></script>
+</body></html>
