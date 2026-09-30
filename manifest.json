@@ -1,0 +1,15 @@
+{
+  "manifest_version": 3,
+  "name": "SaveMD",
+  "version": "0.1.0",
+  "description": "Save any page as clean Markdown with local images.",
+  "minimum_chrome_version": "120",
+  "permissions": ["scripting", "activeTab", "contextMenus", "storage", "offscreen", "downloads", "downloads.ui", "clipboardWrite"],
+  "host_permissions": ["<all_urls>"],
+  "background": { "service_worker": "background.js" },
+  "action": { "default_title": "Save page as Markdown (right-click for more)" },
+  "options_page": "options.html",
+  "commands": {
+    "_execute_action": { "suggested_key": { "default": "Alt+Shift+S" }, "description": "Save page as Markdown" }
+  }
+}
