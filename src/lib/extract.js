@@ -17,7 +17,10 @@ export function extract(doc, { url, mode = 'auto', fragmentHtml = null, fragment
   if (fragmentHtml != null) return { ...meta, contentHtml: fragmentHtml, modeUsed: fragmentKind };
 
   if (mode !== 'full') {
-    const article = parseArticle(doc);
+    // Readability drops ids and classes, so named junk (cookie/consent/ad blocks) must go before it runs.
+    const readable = doc.cloneNode(true);
+    removeNamedJunk(readable.body);
+    const article = parseArticle(readable);
     const articleText = (article?.textContent || '').trim().length;
     const pageText = cleanFullPage(doc.body).textContent.replace(/\s+/g, ' ').trim().length;
     if (article?.content && (mode === 'article' || articleText >= pageText * MIN_ARTICLE_RATIO)) {
@@ -26,7 +29,7 @@ export function extract(doc, { url, mode = 'auto', fragmentHtml = null, fragment
         site: article.siteName || meta.site,
         author: article.byline || meta.author,
         published: article.publishedTime || meta.published,
-        contentHtml: article.content,
+        contentHtml: cleanHtml(doc, article.content),
         modeUsed: 'article',
       };
     }
@@ -34,13 +37,24 @@ export function extract(doc, { url, mode = 'auto', fragmentHtml = null, fragment
   return { ...meta, contentHtml: cleanFullPage(doc.body).innerHTML, modeUsed: 'full' };
 }
 
+// Readability keeps nav, headers and banners on short pages; clean its output the same way.
+function cleanHtml(doc, html) {
+  const holder = doc.createElement('div');
+  holder.innerHTML = html;
+  return cleanFullPage(holder).innerHTML;
+}
+
 export function cleanFullPage(body) {
   const root = body.cloneNode(true);
   for (const el of root.querySelectorAll(JUNK_SELECTORS)) el.remove();
+  removeNamedJunk(root);
+  return root;
+}
+
+function removeNamedJunk(root) {
   for (const el of root.querySelectorAll('[id], [class]')) {
     if ([el.id, ...el.classList].some((t) => t && JUNK_NAME.test(t))) el.remove();
   }
-  return root;
 }
 
 export function readMetadata(doc, url) {

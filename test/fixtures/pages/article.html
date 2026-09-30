@@ -1,0 +1,22 @@
+<!-- saved from https://blog.example.com/posts/lazy-images?utm_source=rss on 2026-09-30T12:00:00.000Z -->
+<html><head><title>Why lazy images break printing | Example Blog</title>
+<meta property="og:title" content="Why lazy images break printing">
+<meta property="og:site_name" content="Example Blog">
+<meta name="author" content="Ada Lovelace">
+<meta property="article:published_time" content="2026-09-01T08:00:00Z"></head>
+<body>
+<nav><a href="/">Home</a> <a href="/archive">Archive</a></nav>
+<div class="cookie-banner">We use cookies. <button>Accept</button></div>
+<article>
+<h1>Why lazy images break printing</h1>
+<p>Most modern sites load images only when you scroll near them. That keeps pages fast, but it means anything that captures the page before you scroll sees empty placeholders instead of pictures.</p>
+<p>Print-to-PDF is one of those captures. The browser lays the page out for paper, and any image that never entered the viewport stays a grey box or disappears entirely.</p>
+<figure><img src="data:image/gif;base64,R0lGODlhAQABAAAAACw=" data-src="/img/placeholder-vs-real.png" width="800" height="450" alt="Placeholder next to the real image"><figcaption>A placeholder next to the real image.</figcaption></figure>
+<p>The fix is to read the real address from attributes like <code>data-src</code> or <code>srcset</code> before saving. Browsers keep those around even when the image has not loaded yet.</p>
+<blockquote><p>If a tool saves the placeholder, you only find out months later, when the original page is gone.</p></blockquote>
+<pre class="language-js"><code>img.src = img.dataset.src;</code></pre>
+<p>With that one change, a saved copy contains every picture, and the file still makes sense long after the site has moved on or shut down.</p>
+<p>Read more on the <a href="/archive?utm_medium=web&amp;page=2">archive page</a>.</p>
+</article>
+<footer>© Example Blog</footer>
+</body></html>

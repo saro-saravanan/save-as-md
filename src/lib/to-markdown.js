@@ -36,10 +36,22 @@ function createTurndown(baseUrl) {
   return td;
 }
 
+// Readability strips class attributes, so record each code block's language in data-lang first.
+export function markCodeLanguages(root) {
+  for (const pre of root.querySelectorAll('pre')) {
+    const lang = langFromClasses(pre);
+    if (lang) pre.setAttribute('data-lang', lang);
+  }
+}
+
+function langFromClasses(pre) {
+  const code = pre.querySelector('code');
+  return detectLang([pre.className, code?.className, pre.parentElement?.className].filter((c) => typeof c === 'string').join(' '));
+}
+
 function normalizeCodeBlocks(root) {
   for (const pre of [...root.querySelectorAll('pre')]) {
-    const code = pre.querySelector('code');
-    const lang = detectLang([pre.className, code?.className, pre.parentElement?.className].filter((c) => typeof c === 'string').join(' '));
+    const lang = pre.getAttribute('data-lang') || langFromClasses(pre);
     const fresh = pre.ownerDocument.createElement('code');
     if (lang) fresh.className = `language-${lang}`;
     fresh.textContent = pre.textContent.replace(/\n$/, '');
