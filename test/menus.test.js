@@ -5,8 +5,8 @@ describe('interpretMenuClick', () => {
   it('maps save items', () => {
     expect(interpretMenuClick('pick')).toEqual({ action: 'save', opts: { scope: 'pick' } });
     expect(interpretMenuClick('copy')).toEqual({ action: 'save', opts: { dest: 'clipboard' } });
-    expect(interpretMenuClick('save-to')).toEqual({ action: 'save', opts: { dest: 'oneoff' } });
-    expect(interpretMenuClick('downloads')).toEqual({ action: 'save', opts: { dest: 'downloads' } });
+    expect(interpretMenuClick('save-to')).toBeNull(); // removed: Chrome can't keep folder access for extensions
+    expect(interpretMenuClick('downloads')).toBeNull(); // removed: every save goes to Downloads now
     expect(interpretMenuClick('page:save')).toEqual({ action: 'save', opts: {} });
     expect(interpretMenuClick('page:selection')).toEqual({ action: 'save', opts: { scope: 'selection' } });
   });

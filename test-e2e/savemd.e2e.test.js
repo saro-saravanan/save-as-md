@@ -2,17 +2,19 @@
 // through the real toolbar action into a temporary Downloads folder.
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import puppeteer from 'puppeteer';
-import { mkdtemp, mkdir, writeFile, readFile, readdir, rm, stat } from 'node:fs/promises';
+import { mkdtemp, mkdir, writeFile, readFile, readdir, rm, stat, symlink } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { startServer } from './server.mjs';
 import { datePrefix } from '../src/lib/filenames.js';
 
-let browser, server, worker, extension, base, profileDir, downloadDir;
+let browser, server, worker, extension, base, profileDir, downloadDir, linkedDir;
 // Computed per use: a run can cross midnight.
 const today = () => datePrefix(new Date());
-const clips = () => join(downloadDir, 'WebClips');
+// DownloadsWebClips is a junction to linkedDir, the way the README tells people to set it up,
+// so every test also proves Chrome's downloads write through the link.
+const clips = () => linkedDir;
 
 beforeAll(async () => {
   server = await startServer();
@@ -20,6 +22,10 @@ beforeAll(async () => {
   base = `http://localhost:${server.address().port}`;
   profileDir = await mkdtemp(join(tmpdir(), 'savemd-e2e-'));
   downloadDir = join(profileDir, 'Downloads');
+  linkedDir = join(profileDir, 'My Clips');
+  await mkdir(downloadDir, { recursive: true });
+  await mkdir(linkedDir, { recursive: true });
+  await symlink(linkedDir, join(downloadDir, 'WebClips'), 'junction');
   await mkdir(join(profileDir, 'Default'), { recursive: true });
   await writeFile(join(profileDir, 'Default', 'Preferences'), JSON.stringify({
     download: { default_directory: downloadDir, prompt_for_download: false },
@@ -32,7 +38,6 @@ beforeAll(async () => {
   const target = await browser.waitForTarget((t) => t.type() === 'service_worker' && t.url().endsWith('/background.js'));
   worker = await target.worker();
   [extension] = (await browser.extensions()).values();
-  await worker.evaluate(() => chrome.storage.local.set({ destination: 'downloads' }));
 }, 120000);
 
 afterAll(async () => {

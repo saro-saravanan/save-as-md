@@ -23,10 +23,8 @@ export function createOffscreenClient(api) {
   }
 
   return {
-    checkPermission: async (key) => (await call('check-permission', { key })).state,
     fetchImages: (jobId, images) => call('fetch-images', { jobId, images }),
     write: (args) => call('write', args),
-    remove: (key, folderName) => call('remove', { key, folderName }),
     copy: (text) => call('copy', { text }),
     revoke: (urls) => call('revoke-urls', { urls }),
   };

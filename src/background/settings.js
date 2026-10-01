@@ -1,4 +1,4 @@
-export const DEFAULTS = { destination: 'folder', folderPath: '', redditMode: 'top', siteModes: {}, saved: {} };
+export const DEFAULTS = { redditMode: 'top', siteModes: {}, saved: {} };
 
 export const getSettings = () => chrome.storage.local.get(DEFAULTS);
 export const patchSettings = (patch) => chrome.storage.local.set(patch);

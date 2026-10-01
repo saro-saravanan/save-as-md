@@ -1,4 +1,4 @@
-import { assetName, extFor, markdownFileName, withSuffix } from '../lib/filenames.js';
+import { assetName, extFor, markdownFileName } from '../lib/filenames.js';
 import { assembleDocument } from '../lib/assemble.js';
 import { MIN_IMAGE_PX } from '../lib/to-markdown.js';
 
@@ -93,41 +93,4 @@ export function planFiles(capture, fetched) {
   const saved = results.filter((r) => r.status === 'saved').length;
   const failed = results.filter((r) => r.status === 'failed').length;
   return { files, stats: { saved, failed, total: saved + failed }, markdownFile };
-}
-
-export async function writeFolder(root, desiredName, files, { replace = false } = {}) {
-  let name = desiredName;
-  if (replace) await root.removeEntry(name, { recursive: true }).catch(() => {});
-  else for (let n = 2; await exists(root, name); n++) name = withSuffix(desiredName, n);
-
-  const dir = await root.getDirectoryHandle(name, { create: true });
-  // Markdown last: a folder without its .md means "didn't finish", never "looks complete but isn't".
-  const ordered = [...files].sort((a, b) => Number(a.path.endsWith('.md')) - Number(b.path.endsWith('.md')));
-  try {
-    for (const f of ordered) await writeFile(dir, f.path, f.blob);
-  } catch (err) {
-    await root.removeEntry(name, { recursive: true }).catch(() => {});
-    throw err;
-  }
-  return name;
-}
-
-async function exists(root, name) {
-  try {
-    await root.getDirectoryHandle(name);
-    return true;
-  } catch {
-    return false;
-  }
-}
-
-async function writeFile(dir, path, blob) {
-  const parts = path.split('/');
-  const fileName = parts.pop();
-  let d = dir;
-  for (const p of parts) d = await d.getDirectoryHandle(p, { create: true });
-  const fh = await d.getFileHandle(fileName, { create: true });
-  const w = await fh.createWritable();
-  await w.write(blob);
-  await w.close();
 }

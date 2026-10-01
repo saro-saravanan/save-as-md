@@ -3,14 +3,12 @@ import { getSettings } from './settings.js';
 
 const ACTION = ['action'];
 
-// Chrome allows 6 top-level items on the toolbar-button menu; this uses exactly 6.
+// Chrome allows 6 top-level items on the toolbar-button menu; this uses 4.
 export function createMenus() {
   chrome.contextMenus.removeAll(() => {
     const add = (props) => chrome.contextMenus.create(props);
     add({ id: 'pick', contexts: ACTION, title: 'Pick an area to save…' });
     add({ id: 'copy', contexts: ACTION, title: 'Copy page as Markdown' });
-    add({ id: 'save-to', contexts: ACTION, title: 'Save to…' });
-    add({ id: 'downloads', contexts: ACTION, title: 'Save to Downloads' });
     add({ id: 'mode', contexts: ACTION, title: 'On this site, save' });
     add({ id: 'mode:auto', parentId: 'mode', contexts: ACTION, type: 'radio', checked: true, title: 'Automatically (article, else full page)' });
     add({ id: 'mode:article', parentId: 'mode', contexts: ACTION, type: 'radio', title: 'Article only' });
@@ -27,8 +25,6 @@ export function createMenus() {
 const SAVE_ITEMS = {
   pick: { scope: 'pick' },
   copy: { dest: 'clipboard' },
-  'save-to': { dest: 'oneoff' },
-  downloads: { dest: 'downloads' },
   'page:save': {},
   'page:selection': { scope: 'selection' },
 };

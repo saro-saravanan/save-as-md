@@ -7,13 +7,11 @@ const ENTRIES = {
   content: 'src/content/main.js',
   offscreen: 'src/offscreen/offscreen.js',
   options: 'src/pages/options.js',
-  folder: 'src/pages/folder.js',
 };
 const STATIC = {
   'manifest.json': 'manifest.json',
   'offscreen.html': 'src/offscreen/offscreen.html',
   'options.html': 'src/pages/options.html',
-  'folder.html': 'src/pages/folder.html',
   icons: 'icons',
 };
 

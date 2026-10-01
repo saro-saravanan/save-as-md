@@ -48,11 +48,11 @@ describe('offscreen client', () => {
           exists = true;
         }),
       },
-      runtime: { sendMessage: vi.fn(async () => ({ state: 'granted' })) },
+      runtime: { sendMessage: vi.fn(async () => ({ ok: true })) },
     };
     const client = createOffscreenClient(api);
-    await client.checkPermission('default');
-    await expect(client.checkPermission('default')).resolves.toBe('granted');
+    await client.copy('a');
+    await expect(client.copy('b')).resolves.toEqual({ ok: true });
     expect(api.offscreen.createDocument).toHaveBeenCalledTimes(2);
   });
 });

@@ -1,7 +1,11 @@
 import { folderNameFor, datePrefix } from '../lib/filenames.js';
 import { normalizeForDedupe } from '../lib/urls.js';
 import { assembleDocument, remoteResults } from '../lib/assemble.js';
-import { joinPath, vscodeFileUrl } from '../lib/paths.js';
+import { vscodeFileUrl } from '../lib/paths.js';
+
+// Saves always go through Chrome's downloads into Downloads\WebClips. Chrome's folder-picker
+// permission doesn't survive for extensions (it lasts only while an extension tab is open), so
+// people who want another folder link WebClips to it instead (scripts/link-webclips.mjs).
 
 const PROTECTED = /cannot access|cannot be scripted|chrome:\/\/|chrome-extension:\/\/|extensions gallery|webstore/i;
 const PROTECTED_TEXT = "This page can't be saved: the browser doesn't allow extensions on it.";
@@ -38,16 +42,10 @@ export function createSaveFlow(deps) {
     }
   }
 
-  async function run(tab, { scope = 'page', dest = 'default' }) {
-    // Fail fast on pages the browser protects, before asking for (or re-allowing) a folder.
+  async function run(tab, { scope = 'page', dest = 'downloads' }) {
+    // Fail fast (with a badge) on pages the browser protects.
     await deps.page.probe(tab.id);
     const settings = await deps.settings.get();
-    const target = await resolveTarget(dest, settings);
-    if (!target) {
-      await deps.page.toast(tab.id, { tone: 'error', text: 'Not saved — no folder chosen.' });
-      return { status: 'cancelled' };
-    }
-
     const mode = settings.siteModes[hostOf(tab.url)] || 'auto';
     const res = await deps.page.capture(tab.id, { scope, mode, redditMode: settings.redditMode });
     if (res.cancelled) return { status: 'cancelled' };
@@ -65,32 +63,21 @@ export function createSaveFlow(deps) {
       return { status: 'empty' };
     }
 
-    if (target.kind === 'clipboard') {
+    if (dest === 'clipboard') {
       await deps.offscreen.copy(assembleDocument(capture, remoteResults(capture.images)));
       await deps.page.toast(tab.id, { tone: 'ok', text: `Copied as Markdown · ${fmt(capture.wordCount)} words` });
       return { status: 'copied' };
     }
-    return saveToDisk(tab, { scope, target, capture, settings, fellBack: mode === 'auto' && capture.modeUsed === 'full' });
+    return saveToDownloads(tab, { scope, capture, settings, fellBack: mode === 'auto' && capture.modeUsed === 'full' });
   }
 
-  async function resolveTarget(dest, settings) {
-    if (dest === 'clipboard') return { kind: 'clipboard' };
-    if (dest === 'downloads' || (dest === 'default' && settings.destination === 'downloads')) return { kind: 'downloads' };
-    if (dest === 'oneoff') return (await deps.folders.pick('oneoff')) ? { kind: 'folder', key: 'oneoff' } : null;
-    const state = await deps.offscreen.checkPermission('default');
-    if (state === 'granted') return { kind: 'folder', key: 'default' };
-    const ok = await deps.folders.pick(state === 'missing' ? 'default' : 'regrant');
-    return ok ? { kind: 'folder', key: 'default' } : null;
-  }
-
-  async function saveToDisk(tab, { scope, target, capture, settings, fellBack }) {
+  async function saveToDownloads(tab, { scope, capture, settings, fellBack }) {
     const key = normalizeForDedupe(tab.url);
-    const targetId = target.kind === 'folder' ? `folder:${target.key}` : target.kind;
-    const remember = scope === 'page' && target.key !== 'oneoff';
+    const remember = scope === 'page';
     const previous = remember ? settings.saved[key] : null;
 
     let replace = false;
-    if (previous && previous.target === targetId) {
+    if (previous) {
       const choice = await quietToast(tab.id, {
         tone: 'ask',
         text: `You saved this page on ${datePrefix(new Date(previous.savedAt))}.`, // local date, like folder names
@@ -102,9 +89,8 @@ export function createSaveFlow(deps) {
     }
 
     const now = deps.now();
-    let folderName = replace ? previous.folderName : folderNameFor(now, capture.title);
-    // Downloads overwrites on a name clash, so pick a folder name that isn't taken yet.
-    if (!replace && target.kind === 'downloads') folderName = await deps.downloads.freeFolderName(folderName);
+    // Downloads overwrites on a name clash, so a new save gets a folder name that isn't taken yet.
+    const folderName = replace ? previous.folderName : await deps.downloads.freeFolderName(folderNameFor(now, capture.title));
 
     const jobId = deps.newId();
     const { failedUrls, usable = 0 } = await deps.offscreen.fetchImages(jobId, capture.images);
@@ -116,53 +102,38 @@ export function createSaveFlow(deps) {
       await quietToast(tab.id, { tone: 'error', text: EMPTY_TEXT });
       return { status: 'empty' };
     }
-    const writeTarget = target.kind === 'folder' ? { kind: 'folder', key: target.key } : { kind: 'downloads' };
-    const result = await deps.offscreen.write({ jobId, capture, target: writeTarget, folderName, replace, pageData });
+    const result = await deps.offscreen.write({ jobId, capture, pageData });
 
-    let downloadIds = null;
-    if (target.kind === 'downloads') {
-      if (replace && previous.downloadIds) await deps.downloads.remove(previous.downloadIds);
-      downloadIds = await deps.downloads.write(result.folderName, result.blobFiles);
-    }
+    if (replace && previous.downloadIds) await deps.downloads.remove(previous.downloadIds);
+    const downloadIds = await deps.downloads.write(folderName, result.blobFiles);
 
     if (remember) {
       const { saved } = await deps.settings.get();
       await deps.settings.patch({
-        saved: { ...saved, [key]: { target: targetId, folderName: result.folderName, markdownFile: result.markdownFile, savedAt: now.toISOString(), downloadIds } },
+        saved: { ...saved, [key]: { folderName, markdownFile: result.markdownFile, savedAt: now.toISOString(), downloadIds } },
       });
     }
 
-    const openUrl = await openUrlFor(target, result, downloadIds, settings);
-    const choice = await quietToast(tab.id, savedToast(capture, result.stats, { openUrl, downloads: target.kind === 'downloads', fellBack, replace }));
+    // The Markdown file is downloaded last, so the last id is the .md.
+    const mdPath = await deps.downloads.absolutePath(downloadIds.at(-1));
+    const openUrl = mdPath ? vscodeFileUrl(mdPath) : null;
+    const choice = await quietToast(tab.id, savedToast(capture, result.stats, { openUrl, fellBack, replace }));
     if (choice === 'open') await deps.openExternal(tab.id, openUrl);
     if (choice === 'folder') deps.downloads.show(downloadIds.at(-1));
-    if (choice === 'undo') await undo(tab, { target, result, downloadIds, key, remember, replace });
-    return { status: 'saved', folderName: result.folderName, stats: result.stats };
+    if (choice === 'undo') await undo(tab, { downloadIds, key, remember, replace });
+    return { status: 'saved', folderName, stats: result.stats };
   }
 
-  async function openUrlFor(target, result, downloadIds, settings) {
-    if (target.kind === 'downloads') {
-      const path = await deps.downloads.absolutePath(downloadIds.at(-1));
-      return path ? vscodeFileUrl(path) : null;
-    }
-    if (target.key === 'default' && settings.folderPath) {
-      return vscodeFileUrl(joinPath(settings.folderPath, result.folderName, result.markdownFile));
-    }
-    return null;
-  }
-
-  async function undo(tab, { target, result, downloadIds, key, remember, replace }) {
-    if (target.kind === 'downloads') await deps.downloads.remove(downloadIds);
-    else await deps.offscreen.remove(target.key, result.folderName);
+  async function undo(tab, { downloadIds, key, remember, replace }) {
+    await deps.downloads.remove(downloadIds);
     if (remember) {
       const saved = { ...(await deps.settings.get()).saved };
       delete saved[key];
       await deps.settings.patch({ saved });
     }
-    // The previous version was replaced, so this can't restore it; say what actually happened.
-    let text = replace ? 'Deleted.' : 'Removed.';
+    // After "Update existing" the previous version is already gone, so say Deleted, not Removed.
     // Chrome's downloads API deletes files but not the folders they were in.
-    if (target.kind === 'downloads') text += ' Chrome leaves the empty folder in Downloads\\WebClips.';
+    const text = `${replace ? 'Deleted.' : 'Removed.'} Chrome leaves the empty folder in Downloads\\WebClips.`;
     await quietToast(tab.id, { tone: 'ok', text, timeoutMs: 4000 });
   }
 
@@ -184,7 +155,7 @@ export function createSaveFlow(deps) {
   }
 }
 
-function savedToast(capture, stats, { openUrl, downloads, fellBack, replace }) {
+function savedToast(capture, stats, { openUrl, fellBack, replace }) {
   const parts = [];
   let tone = 'ok';
   if (stats.failed > 0) {
@@ -197,7 +168,7 @@ function savedToast(capture, stats, { openUrl, downloads, fellBack, replace }) {
   if (fellBack) parts.push('full page');
   const actions = [];
   if (openUrl) actions.push({ id: 'open', label: 'Open in VS Code' });
-  if (downloads) actions.push({ id: 'folder', label: 'Show folder' });
+  actions.push({ id: 'folder', label: 'Show folder' });
   actions.push({ id: 'undo', label: replace ? 'Delete' : 'Undo' });
   return { tone, text: parts.join(' · '), actions };
 }

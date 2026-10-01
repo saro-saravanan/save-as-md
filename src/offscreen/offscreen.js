@@ -1,5 +1,4 @@
-import { getHandle } from '../lib/handle-store.js';
-import { fetchImages, planFiles, writeFolder, JobStore } from './writer.js';
+import { fetchImages, planFiles, JobStore } from './writer.js';
 
 const pending = new JobStore(); // jobId → fetched images, kept here so Blobs never cross messaging
 
@@ -11,10 +10,6 @@ chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
 
 async function handle(type, msg) {
   switch (type) {
-    case 'check-permission': {
-      const h = await getHandle(msg.key);
-      return { state: h ? await h.queryPermission({ mode: 'readwrite' }) : 'missing' };
-    }
     case 'fetch-images': {
       const fetched = await fetchImages(msg.images);
       pending.set(msg.jobId, fetched);
@@ -25,11 +20,6 @@ async function handle(type, msg) {
     }
     case 'write':
       return write(msg);
-    case 'remove': {
-      const h = await getHandle(msg.key);
-      await h.removeEntry(msg.folderName, { recursive: true });
-      return { ok: true };
-    }
     case 'copy':
       copyText(msg.text);
       return { ok: true };
@@ -41,24 +31,16 @@ async function handle(type, msg) {
   }
 }
 
-async function write({ jobId, capture, target, folderName, replace, pageData = {} }) {
+// Builds the files and hands them back as blob URLs; the service worker downloads them.
+async function write({ jobId, capture, pageData = {} }) {
   const fetched = pending.take(jobId) || [];
   await Promise.all(capture.images.map(async (img, i) => {
     const dataUrl = img.url && pageData[img.url];
     if (!fetched[i]?.ok && dataUrl) fetched[i] = { ok: true, blob: await (await fetch(dataUrl)).blob() };
   }));
   const { files, stats, markdownFile } = planFiles(capture, fetched);
-
-  if (target.kind === 'folder') {
-    const root = await getHandle(target.key);
-    if (!root || (await root.queryPermission({ mode: 'readwrite' })) !== 'granted') {
-      return { ok: false, error: 'Chrome no longer allows access to the save folder. Save again to re-allow it.' };
-    }
-    const savedAs = await writeFolder(root, folderName, files, { replace });
-    return { ok: true, folderName: savedAs, markdownFile, stats };
-  }
   const blobFiles = files.map((f) => ({ path: f.path, url: URL.createObjectURL(f.blob) }));
-  return { ok: true, folderName, markdownFile, stats, blobFiles };
+  return { ok: true, markdownFile, stats, blobFiles };
 }
 
 function copyText(text) {

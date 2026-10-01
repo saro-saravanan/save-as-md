@@ -2,7 +2,6 @@ import { createSaveFlow } from './save-flow.js';
 import { createMenus, syncMenus, interpretMenuClick } from './menus.js';
 import { createOffscreenClient } from './offscreen-client.js';
 import { createDownloadsWriter } from './downloads.js';
-import { pickFolder, resolveFolderRequest } from './folders.js';
 import { getSettings, patchSettings, setSiteMode } from './settings.js';
 import { createPageClient } from './page-client.js';
 
@@ -12,7 +11,6 @@ const flow = createSaveFlow({
   page: createPageClient(chrome),
   offscreen,
   downloads: createDownloadsWriter(chrome, offscreen),
-  folders: { pick: pickFolder },
   settings: { get: getSettings, patch: patchSettings },
   // Decided in Task 0, Check C. If the spike showed this navigates or prompts per site, use Step 6's fallback.
   openExternal: (tabId, url) => chrome.tabs.update(tabId, { url }),
@@ -56,13 +54,9 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
   await syncMenus(tab.url);
 });
 
-chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
-  if (msg?.type === 'folder-ready') {
-    resolveFolderRequest(msg.requestId, msg.ok);
-    sendResponse({ ok: true }); // lets the folder page's await settle so it can close itself
-  }
-  // 'keepalive' needs no handling: receiving it is enough to keep the worker alive.
-});
+// The content script pings 'keepalive' while a pick or notice is pending; receiving the message is
+// what keeps the worker alive, so the listener has nothing else to do.
+chrome.runtime.onMessage.addListener(() => {});
 
 // Menu radio state is global, so refresh it whenever the visible tab changes: tab switch,
 // navigation, or focusing a different window.
