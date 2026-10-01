@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SaveMD: save any page as clean Markdown, with every image</title>
+<meta name="description" content="A free, open-source Chrome extension that saves any web page as clean Markdown, with every image saved to your computer, in one click. Nothing leaves your device.">
+<link rel="icon" href="assets/icon-128.png">
+<link rel="stylesheet" href="fonts/fonts.css">
+<link rel="stylesheet" href="site.css">
+</head>
+<body>
+<!--
+THESIS: A saved page is a seed packet: the page as you saw it on the front, the plain Markdown on the back. Refuses the extension-landing default of headline, browser mockup and feature cards.
+OWN-WORLD: Hardware-store seed rack. Fibered buff packet stock, an ink-drawn wire rack with a printed front lip, tomato red, pea green, marigold, ink navy; hairline double-ruled green panels. Condensed bracketed-serif seedsman capitals with ink wear, sign-painter script variety names, almanac serif and ruled tables, typewriter Markdown on packet backs.
+STORY: The visitor sees real pages saved by SaveMD, turns a packet to read the Markdown it became, learns the ways to save, trusts that nothing leaves their computer, and installs.
+FIRST VIEWPORT: Left, the headline in seedsman capitals with a script line and the primary "Install SaveMD" button; right, three packets made from real saves, fanned in a wire rack behind a printed front lip, each turning over on click.
+FORM: Seed Packet Rack, a dealt challenger chosen by the user over position 4 (Contact Sheet) of the grounded list. Seed key bf950925.
+FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, and DESIGN.md
+-->
+<a class="skip" href="#main">Skip to content</a>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="sprig" viewBox="0 0 28 14"><path d="M1 7h26M16 7c2-4.5 7-5.8 10-4.6C24.8 6 20.5 8 16 7zm0 0c2 4.5 7 5.8 10 4.6C24.8 8 20.5 6 16 7zM8 7c1.2-2.8 4.2-3.6 6-2.9C13.3 6.3 10.7 7.6 8 7zm0 0c1.2 2.8 4.2 3.6 6 2.9C13.3 7.7 10.7 6.4 8 7z"/></symbol>
+  <symbol id="mark" viewBox="0 0 100 100"><rect width="100" height="100" rx="20" fill="#1f883d"/><path fill="#fff" d="M43 16h14v34h-14z M25 44h50L50 70z M20 74h60v11H20z M20 60h11v25H20z M69 60h11v25H69z"/></symbol>
+</svg>
+
+<header class="masthead">
+  <a class="brand" href="./" aria-label="SaveMD home"><svg class="brand-mark" aria-hidden="true"><use href="#mark"/></svg><span class="brand-name">SaveMD</span></a>
+  <nav class="topnav" aria-label="Site">
+    <a href="#rack">See a saved page</a>
+    <a href="#guide">How to use it</a>
+    <a href="#privacy">Privacy</a>
+    <a href="https://github.com/saro-saravanan/save-as-md">Source code</a>
+  </nav>
+  <a class="btn btn-small" href="#install">Install</a>
+</header>
+
+<main id="main">
+  <section class="hero" aria-labelledby="hero-title">
+    <div class="hero-copy">
+      <h1 id="hero-title">
+        <span class="caps">Save the page.</span>
+        <span class="script">Keep every image.</span>
+      </h1>
+      <hr class="rule-dot">
+      <p class="lede">SaveMD turns any web page into clean Markdown and saves it to your computer, with all of its images, in one click. Free and open source.</p>
+      <div class="actions">
+        <a class="btn btn-primary" href="#install"><svg class="sprig" aria-hidden="true"><use href="#sprig"/></svg>Install SaveMD<svg class="sprig flip" aria-hidden="true"><use href="#sprig"/></svg></a>
+        <a class="btn btn-ghost" href="#rack">Turn a packet over</a>
+      </div>
+      <p class="store-note">For Chrome. The Chrome Web Store listing is coming soon; today it installs from the source code.</p>
+    </div>
+
+    <div class="rack" id="rack" aria-label="Pages saved with SaveMD. Turn a packet over to see its Markdown.">
+      <svg class="rack-wire" viewBox="0 0 800 560" preserveAspectRatio="none" aria-hidden="true">
+        <path d="M34 556V40q0-16 16-16h700q16 0 16 16v516 M34 120h732"/>
+      </svg>
+      <div class="rack-row">
+        <button class="packet packet-tomato" type="button" aria-pressed="false" aria-label="Heirloom tomato, a Wikipedia article saved with SaveMD. Turn over to see the Markdown.">
+          <span class="packet-inner">
+            <span class="face front">
+              <svg class="arch" viewBox="0 0 300 64" aria-hidden="true"><path id="arc-tomato" d="M28 58 Q150 8 272 58" fill="none"/><text><textPath href="#arc-tomato" startOffset="50%" text-anchor="middle">SAVEMD</textPath></text></svg>
+              <span class="window"><img src="assets/tomato-front.webp" alt="" width="960" height="840"></span>
+              <span class="seal" aria-hidden="true"><svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="47"/><circle cx="50" cy="50" r="40" class="seal-ring"/><path id="seal-arc" d="M50 50m-31 0a31 31 0 1 1 62 0a31 31 0 1 1-62 0" fill="none"/><text><textPath href="#seal-arc" startOffset="0">FREE · OPEN SOURCE · FREE ·</textPath></text><use href="#sprig" x="34" y="43" width="32" height="16" class="seal-sprig"/></svg></span>
+              <span class="variety">Heirloom Tomato</span>
+              <span class="kind">Wikipedia article</span>
+              <span class="almanac"><span><b>872</b>words</span><span><b>3/3</b>images</span><span><b>5</b>files</span></span>
+            </span>
+            <span class="face back">
+              <span class="back-title">Saved as Markdown</span>
+              <span class="md">---
+title: "Heirloom tomato"
+source: "https://en.wikipedia.org/wiki/Heirloom_tomato"
+---
+
+# Heirloom tomato
+
+[![Assorted tomatoes, orange, yellow, green, and red, in basket](assets/img-01.jpg)](https://en.wikipedia.org/wiki/File:Capay_heirloom_tomatoes_at_Slow_Food_Nation.jpg)
+
+An **heirloom tomato** (also called **heritage tomato** in the [UK](https://en.wikipedia.org/wiki/United_Kingdom)) is an [open-pollinated](https://en.wikipedia.org/wiki/Open_pollination), non-hybrid…</span>
+              <span class="ledger"><span>Folder</span><span>2026-10-01 Heirloom tomato</span><span>Files</span><span>Heirloom tomato.md · assets (3 images) · _source.html</span></span>
+            </span>
+          </span>
+        </button>
+
+        <button class="packet packet-pea" type="button" aria-pressed="false" aria-label="Snap pea, a Wikipedia article saved with SaveMD. Turn over to see the Markdown.">
+          <span class="packet-inner">
+            <span class="face front">
+              <svg class="arch" viewBox="0 0 300 64" aria-hidden="true"><path id="arc-pea" d="M28 58 Q150 8 272 58" fill="none"/><text><textPath href="#arc-pea" startOffset="50%" text-anchor="middle">SAVEMD</textPath></text></svg>
+              <span class="window"><img src="assets/pea-front.webp" alt="" width="960" height="840"></span>
+              <span class="variety">Snap Pea</span>
+              <span class="kind">Wikipedia article</span>
+              <span class="almanac"><span><b>1,080</b>words</span><span><b>1/1</b>image</span><span><b>3</b>files</span></span>
+            </span>
+            <span class="face back">
+              <span class="back-title">Saved as Markdown</span>
+              <span class="md">---
+title: "Snap pea"
+source: "https://en.wikipedia.org/wiki/Snap_pea"
+---
+
+# Snap pea
+
+| Snap pea |
+| --- |
+| [![](assets/img-01.jpg)](https://en.wikipedia.org/wiki/File:Sugar_Snap_Pea.JPG) |
+| [Species](https://en.wikipedia.org/wiki/Species) | *[Pisum sativum](https://en.wikipedia.org/wiki/Pea)* |</span>
+              <span class="ledger"><span>Folder</span><span>2026-10-01 Snap pea</span><span>Files</span><span>Snap pea.md · assets (1 image) · _source.html</span></span>
+            </span>
+          </span>
+        </button>
+
+        <button class="packet packet-fetch" type="button" aria-pressed="false" aria-label="Using the Fetch API, an MDN docs page saved with SaveMD. Turn over to see the Markdown.">
+          <span class="packet-inner">
+            <span class="face front">
+              <svg class="arch" viewBox="0 0 300 64" aria-hidden="true"><path id="arc-fetch" d="M28 58 Q150 8 272 58" fill="none"/><text><textPath href="#arc-fetch" startOffset="50%" text-anchor="middle">SAVEMD</textPath></text></svg>
+              <span class="window"><img src="assets/fetch-front.webp" alt="" width="960" height="840"></span>
+              <span class="variety">Fetch API</span>
+              <span class="kind">MDN docs page</span>
+              <span class="almanac"><span><b>2,068</b>words</span><span><b>22</b>code blocks</span><span><b>2</b>files</span></span>
+            </span>
+            <span class="face back">
+              <span class="back-title">Saved as Markdown</span>
+              <span class="md">### Setting the method
+
+By default, `fetch()` makes a [`GET`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Methods/GET) request, but you can use the `method` option to use a different request method:
+
+```js
+const response = await fetch("https://example.org/post", {
+  method: "POST",
+  // …
+});
+```</span>
+              <span class="ledger"><span>Folder</span><span>2026-10-01 Using the Fetch API - Web APIs MDN</span><span>Files</span><span>Using the Fetch API - Web APIs MDN.md · _source.html</span></span>
+            </span>
+          </span>
+        </button>
+      </div>
+      <div class="rack-lip" aria-hidden="true"><span>Save now</span><svg class="sprig"><use href="#sprig"/></svg><span>Read later</span></div>
+    </div>
+    <ul class="facts" aria-label="At a glance">
+      <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h9l4 4v14H6z M15 3v4h4 M9 12h7 M9 15h7 M9 18h4"/></svg>Works on any page</li>
+      <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5h18v14H3z M3 16l5-5 4 4 3-3 6 6 M15 9.5a1.5 1.5 0 1 0 0-.01"/></svg>Images saved locally</li>
+      <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11l8-7 8 7v9H4z M10 20v-5h4v5"/></svg>Nothing leaves your computer</li>
+      <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 7l-5 5 5 5 M16 7l5 5-5 5 M14 4l-4 16"/></svg>Open source, MIT</li>
+    </ul>
+  </section>
+
+  <div class="panels">
+    <section class="panel panel-notice" aria-labelledby="notice-title">
+      <h2 class="head" id="notice-title">It tells you when it got everything<svg class="sprig" aria-hidden="true"><use href="#sprig"/></svg></h2>
+      <hr class="rule-dot">
+      <p>After every save, a notice at the bottom of the page counts the words and images it kept. If an image couldn't be saved, it says so and links the original instead of dropping it. Open the file, show its folder, or undo, right there.</p>
+      <figure class="notice-shot">
+        <img src="assets/notice.png" alt="SaveMD's notice after saving the Heirloom tomato article: Saved, 872 words, 3/3 images, with Open, Show folder and Undo buttons." width="690" height="78" style="aspect-ratio: auto">
+        <figcaption>The real notice, after saving <i>Heirloom tomato</i>.</figcaption>
+      </figure>
+    </section>
+
+    <section class="panel panel-privacy" id="privacy" aria-labelledby="privacy-title">
+      <h2 class="head" id="privacy-title">Nothing leaves your computer<svg class="sprig" aria-hidden="true"><use href="#sprig"/></svg></h2>
+      <hr class="rule-dot">
+      <dl class="pledges">
+        <dt>No account, server or analytics</dt><dd>SaveMD runs entirely in your browser.</dd>
+        <dt>Your files, on your disk</dt><dd>Chrome itself writes pages into your Downloads folder.</dd>
+        <dt>Only when you ask</dt><dd>It reads a page when you click save, and not before.</dd>
+        <dt>Check for yourself</dt><dd>Every line of code is <a href="https://github.com/saro-saravanan/save-as-md">on GitHub</a> under the MIT license.</dd>
+      </dl>
+      <a class="text-link" href="privacy.html">Read the privacy policy</a>
+    </section>
+
+    <section class="panel panel-guide" id="guide" aria-labelledby="guide-title">
+      <h2 class="head head-center" id="guide-title"><svg class="sprig flip" aria-hidden="true"><use href="#sprig"/></svg>Saving guide<svg class="sprig" aria-hidden="true"><use href="#sprig"/></svg></h2>
+      <p class="guide-lede">Every save lands in <code>Downloads\WebClips</code> as a folder holding the Markdown file, an <code>assets</code> folder of images, and the page as it was.</p>
+      <div class="table-wrap">
+        <table class="almanac-table">
+          <thead><tr><th scope="col">When you want to</th><th scope="col">Do this</th><th scope="col">You get</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">Save a page</th><td>Click the SaveMD button, or press <kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd></td><td>The article, or the whole page when there's no article, with every image</td></tr>
+            <tr><th scope="row">Save one part of a page</th><td>Right-click the button, then <em>Pick an area to save</em></td><td>Just the part you click</td></tr>
+            <tr><th scope="row">Save what you selected</th><td>Right-click the page, then <em>Save selection as Markdown</em></td><td>Just the selection</td></tr>
+            <tr><th scope="row">Paste into an AI chat</th><td>Right-click the button, then <em>Copy page as Markdown</em></td><td>Clean text on your clipboard</td></tr>
+            <tr><th scope="row">Keep a Reddit thread</th><td>Click the button as usual</td><td>The post, its comment threads and their images</td></tr>
+            <tr><th scope="row">Read it later</th><td><em>Open</em> in the notice</td><td>The file in your usual Markdown app</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="guide-note">On Windows, SaveMD's Options page gives you a one-line command that sends saves to any folder you choose instead.</p>
+    </section>
+
+    <section class="panel panel-install" id="install" aria-labelledby="install-title">
+      <h2 class="head" id="install-title">Install SaveMD<svg class="sprig" aria-hidden="true"><use href="#sprig"/></svg></h2>
+      <hr class="rule-dot">
+      <p class="store-status"><span class="badge">Coming soon</span> Chrome Web Store listing</p>
+      <p>Until then, install it from the source code. It takes a few minutes and needs <a href="https://nodejs.org/">Node.js</a>.</p>
+      <ol class="install-steps">
+        <li>Download the code from <a href="https://github.com/saro-saravanan/save-as-md">GitHub</a>, then run <code>npm install</code> and <code>npm run build</code> in its folder.</li>
+        <li>Open <code>chrome://extensions</code> and turn on <em>Developer mode</em>.</li>
+        <li>Choose <em>Load unpacked</em>, select the <code>dist</code> folder, and pin SaveMD to the toolbar.</li>
+      </ol>
+    </section>
+
+    <section class="panel panel-faq" aria-labelledby="faq-title">
+      <h2 class="head" id="faq-title">Questions<svg class="sprig" aria-hidden="true"><use href="#sprig"/></svg></h2>
+      <hr class="rule-dot">
+      <details>
+        <summary>Is it really free?</summary>
+        <p>Yes, every feature, with no account. It's open source under the MIT license.</p>
+      </details>
+      <details>
+        <summary>Which apps can open what it saves?</summary>
+        <p>Any app that reads Markdown: Obsidian, Typora, MarkText, VS Code and others. The image links point at the local copies, so pages read offline. <em>Open</em> uses whichever app your computer opens <code>.md</code> files with.</p>
+      </details>
+      <details>
+        <summary>Why not save straight into a folder I pick?</summary>
+        <p>Chrome doesn't let extensions keep access to a folder you choose: it ends as soon as the extension's own window closes. So SaveMD saves through Chrome's downloads, which always works. On Windows, a one-line command from the Options page sends saves to any folder.</p>
+      </details>
+      <details>
+        <summary>Does it work on a Mac?</summary>
+        <p>Saving works the same way, into <code>Downloads/WebClips</code>. Sending saves to another folder is Windows-only for now.</p>
+      </details>
+      <details>
+        <summary>What if a page doesn't save well?</summary>
+        <p>Use <em>Pick an area to save</em> for pages that aren't articles, and please <a href="https://github.com/saro-saravanan/save-as-md/issues">tell us about the page</a>. Each saved folder includes the page as SaveMD saw it, which makes fixing it much easier.</p>
+      </details>
+    </section>
+  </div>
+</main>
+
+<footer class="footer">
+  <div class="footer-brand"><svg class="brand-mark" aria-hidden="true"><use href="#mark"/></svg><span>SaveMD · open source under the <a href="https://github.com/saro-saravanan/save-as-md/blob/main/LICENSE">MIT license</a></span></div>
+  <nav class="footer-nav" aria-label="Footer">
+    <a href="https://github.com/saro-saravanan/save-as-md">GitHub</a>
+    <a href="privacy.html">Privacy policy</a>
+    <a href="https://github.com/saro-saravanan/save-as-md/issues">Report a page</a>
+  </nav>
+  <p class="credits">Example pages: <a href="https://en.wikipedia.org/wiki/Heirloom_tomato">Heirloom tomato</a> and <a href="https://en.wikipedia.org/wiki/Snap_pea">Snap pea</a> from Wikipedia (<a href="https://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>); <a href="https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch">Using the Fetch API</a> from MDN Web Docs (<a href="https://creativecommons.org/licenses/by-sa/2.5/">CC BY-SA 2.5</a>). Saved with SaveMD on 2026-10-01.</p>
+</footer>
+<script src="site.js"></script>
+</body>
+</html>

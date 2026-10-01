@@ -15,16 +15,16 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/saro-saravanan/save-as-md.git"
+    "url": "https://github.com/saro-saravanan/save-as-md.git"
   },
   "keywords": [],
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/saro-saravanan/save-as-md/issues"
   },
   "homepage": "https://github.com/saro-saravanan/save-as-md#readme",
-  "description": "",
+  "description": "Save any web page as clean Markdown with every image, in one click.",
   "type": "module",
   "dependencies": {
     "@mozilla/readability": "^0.6.0",
