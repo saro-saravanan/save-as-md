@@ -103,3 +103,14 @@ describe('JobStore', () => {
     expect(store.take('current')).toBeUndefined();
   });
 });
+
+describe('source copy', () => {
+  // Chrome's downloads rename files whose type doesn't match the extension (.html saved as text/plain → .txt).
+  it('labels the source copy with its real type', () => {
+    const base = { title: 'T', meta: { title: 'T' }, markdown: 'x', images: [] };
+    const html = planFiles({ ...base, source: { ext: 'html', text: '<html></html>' } }, []).files.find((f) => f.path === '.source.html');
+    const json = planFiles({ ...base, source: { ext: 'json', text: '[]' } }, []).files.find((f) => f.path === '.source.json');
+    expect(html.blob.type).toBe('text/html');
+    expect(json.blob.type).toBe('application/json');
+  });
+});

@@ -68,6 +68,9 @@ async function measureBitmap(blob) {
   }
 }
 
+// Chrome's downloads API renames files whose type doesn't match their extension (.html as text/plain → .txt).
+const SOURCE_TYPES = { html: 'text/html', json: 'application/json' };
+
 export function planFiles(capture, fetched) {
   const assets = [];
   const results = capture.images.map((img, i) => {
@@ -85,7 +88,7 @@ export function planFiles(capture, fetched) {
   const files = [
     ...assets,
     { path: markdownFile, blob: new Blob([markdown], { type: 'text/markdown' }) },
-    { path: `.source.${capture.source.ext}`, blob: new Blob([capture.source.text], { type: 'text/plain' }) },
+    { path: `.source.${capture.source.ext}`, blob: new Blob([capture.source.text], { type: SOURCE_TYPES[capture.source.ext] ?? 'text/plain' }) },
   ];
   const saved = results.filter((r) => r.status === 'saved').length;
   const failed = results.filter((r) => r.status === 'failed').length;

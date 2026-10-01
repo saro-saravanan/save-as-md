@@ -32,5 +32,6 @@ Set **Default destination → Downloads\WebClips** in Options, then point that f
 
 ## Develop
 - `npm test` runs the unit tests and the regression set of saved pages.
+- `npm run e2e` launches a throwaway Chrome for Testing with the extension loaded and saves real pages end to end (articles, tricky images, duplicates, Undo, empty pages, Pick an area, Copy as Markdown, protected pages). It saves to Downloads, because the folder picker is a native dialog it can't operate.
 - `npm run watch` rebuilds on change. Reload the extension after each rebuild.
 - `docs/manual-test.md` is the end-to-end checklist.

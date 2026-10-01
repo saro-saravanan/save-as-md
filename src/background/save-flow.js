@@ -1,4 +1,4 @@
-import { folderNameFor } from '../lib/filenames.js';
+import { folderNameFor, datePrefix } from '../lib/filenames.js';
 import { normalizeForDedupe } from '../lib/urls.js';
 import { assembleDocument, remoteResults } from '../lib/assemble.js';
 import { joinPath, vscodeFileUrl } from '../lib/paths.js';
@@ -93,7 +93,7 @@ export function createSaveFlow(deps) {
     if (previous && previous.target === targetId) {
       const choice = await quietToast(tab.id, {
         tone: 'ask',
-        text: `You saved this page on ${previous.savedAt.slice(0, 10)}.`,
+        text: `You saved this page on ${datePrefix(new Date(previous.savedAt))}.`, // local date, like folder names
         actions: [{ id: 'update', label: 'Update existing' }, { id: 'new', label: 'Save new copy' }],
         timeoutMs: 20000,
       });

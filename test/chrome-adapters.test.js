@@ -57,6 +57,28 @@ describe('offscreen client', () => {
   });
 });
 
+describe('offscreen client messages', () => {
+  const api = () => ({
+    offscreen: { hasDocument: vi.fn(async () => true), createDocument: vi.fn() },
+    runtime: { sendMessage: vi.fn(async () => ({ ok: true })) },
+  });
+
+  it('keeps the routing field even when the payload has its own "target"', async () => {
+    const a = api();
+    await createOffscreenClient(a).write({ jobId: 'j', target: { kind: 'downloads' }, folderName: 'F' });
+    const msg = a.runtime.sendMessage.mock.calls[0][0];
+    expect(msg.target).toBe('offscreen');
+    expect(msg.type).toBe('write');
+    expect(msg.payload).toEqual({ jobId: 'j', target: { kind: 'downloads' }, folderName: 'F' });
+  });
+
+  it('fails loudly when the offscreen document does not answer', async () => {
+    const a = api();
+    a.runtime.sendMessage = vi.fn(async () => undefined);
+    await expect(createOffscreenClient(a).write({ jobId: 'j' })).rejects.toThrow('did not answer');
+  });
+});
+
 describe('downloads writer', () => {
   function fakeDownloads() {
     const listeners = new Set();

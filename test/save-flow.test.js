@@ -1,5 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
 import { createSaveFlow } from '../src/background/save-flow.js';
+import { datePrefix } from '../src/lib/filenames.js';
 
 const TAB = { id: 7, url: 'https://blog.ex.com/post?utm_source=x' };
 const KEY = 'https://blog.ex.com/post';
@@ -257,5 +258,13 @@ describe('save flow', () => {
       await createSaveFlow(deps).save(TAB);
       expect(lastToast(deps).text).toBe('Removed. Chrome leaves the empty folder in Downloads\\WebClips.');
     });
+  });
+
+  it('shows the previous save date in local time, like the folder names', async () => {
+    const savedAt = '2026-09-02T02:30:00.000Z'; // a different calendar day in UTC than in most local zones
+    const previous = { target: 'folder:default', folderName: 'F', savedAt };
+    const deps = makeDeps({ settings: { saved: { [KEY]: previous } } });
+    await createSaveFlow(deps).save(TAB);
+    expect(deps.page.toast.mock.calls[0][1].text).toBe(`You saved this page on ${datePrefix(new Date(savedAt))}.`);
   });
 });

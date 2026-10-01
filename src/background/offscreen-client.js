@@ -15,7 +15,9 @@ export function createOffscreenClient(api) {
 
   async function call(type, payload = {}) {
     await ensureOffscreen();
-    const res = await api.runtime.sendMessage({ target: 'offscreen', type, ...payload });
+    // Payload goes in its own field: spreading it would let a payload key (write's `target`) clobber the routing.
+    const res = await api.runtime.sendMessage({ target: 'offscreen', type, payload });
+    if (res === undefined) throw new Error(`The offscreen document did not answer "${type}".`);
     if (res?.ok === false) throw new Error(res.error);
     return res;
   }

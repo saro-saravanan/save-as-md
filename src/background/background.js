@@ -29,6 +29,11 @@ const flow = createSaveFlow({
   newId: () => crypto.randomUUID(),
 });
 
+// End-to-end tests drive menu-only actions (pick, copy) through this; `npm run build` compiles it out.
+if (__E2E__) {
+  globalThis.__savemdTest = { save: async (tabId, opts) => flow.save(await chrome.tabs.get(tabId), opts) };
+}
+
 const hostOf = (url) => {
   try {
     return new URL(url).hostname;

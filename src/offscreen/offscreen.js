@@ -5,12 +5,12 @@ const pending = new JobStore(); // jobId → fetched images, kept here so Blobs 
 
 chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
   if (msg?.target !== 'offscreen') return false;
-  handle(msg).then(sendResponse, (err) => sendResponse({ ok: false, error: err?.message || String(err) }));
+  handle(msg.type, msg.payload ?? {}).then(sendResponse, (err) => sendResponse({ ok: false, error: err?.message || String(err) }));
   return true;
 });
 
-async function handle(msg) {
-  switch (msg.type) {
+async function handle(type, msg) {
+  switch (type) {
     case 'check-permission': {
       const h = await getHandle(msg.key);
       return { state: h ? await h.queryPermission({ mode: 'readwrite' }) : 'missing' };
@@ -37,7 +37,7 @@ async function handle(msg) {
       msg.urls.forEach((u) => URL.revokeObjectURL(u));
       return { ok: true };
     default:
-      return { ok: false, error: `Unknown offscreen message: ${msg.type}` };
+      return { ok: false, error: `Unknown offscreen message: ${type}` };
   }
 }
 
@@ -66,6 +66,7 @@ function copyText(text) {
   ta.value = text;
   document.body.append(ta);
   ta.select();
-  document.execCommand('copy');
+  const copied = document.execCommand('copy');
   ta.remove();
+  if (!copied) throw new Error('Chrome did not allow copying to the clipboard.');
 }
