@@ -45,6 +45,19 @@ export function startServer() {
       if (url.pathname === '/empty.html') {
         return send(200, 'text/html; charset=utf-8', '<!doctype html><html><head><title>App</title></head><body><div id="root"></div><canvas width="600" height="400"></canvas></body></html>');
       }
+      // A strict page: no frames, no inline styles. SaveMD's notice and Open button must still work.
+      if (url.pathname === '/strict.html') {
+        res.writeHead(200, { 'content-type': 'text/html; charset=utf-8', 'content-security-policy': "default-src 'self'; frame-src 'none'; style-src 'none'" });
+        return res.end(`<!doctype html><html><head><title>Strict page</title></head><body><article><h1>Strict page</h1>${paragraphs(4)}</article></body></html>`);
+      }
+      // Like sites (Reddit) whose own UI lives in the browser's top layer, above any z-index.
+      if (url.pathname === '/overlay.html') {
+        return send(200, 'text/html; charset=utf-8', `<!doctype html><html><head><title>Covered page</title>
+          <style>#cover { position: fixed; inset: 0; width: auto; height: auto; margin: 0; border: 0; background: #fff; }</style></head><body>
+          <article><h1>Covered page</h1>${paragraphs(4)}</article>
+          <div id="cover" popover="manual"></div>
+          <script>document.getElementById('cover').showPopover();</script></body></html>`);
+      }
       if (url.pathname === '/pick.html') {
         return send(200, 'text/html; charset=utf-8', `<!doctype html><html><head><title>Pick test</title></head><body>
           <nav>Site navigation</nav>

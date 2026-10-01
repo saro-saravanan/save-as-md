@@ -12,8 +12,6 @@ const flow = createSaveFlow({
   offscreen,
   downloads: createDownloadsWriter(chrome, offscreen),
   settings: { get: getSettings, patch: patchSettings },
-  // Decided in Task 0, Check C. If the spike showed this navigates or prompts per site, use Step 6's fallback.
-  openExternal: (tabId, url) => chrome.tabs.update(tabId, { url }),
   badge: async (tabId, text) => {
     await chrome.action.setBadgeBackgroundColor({ tabId, color: '#d1242f' });
     await chrome.action.setBadgeText({ tabId, text: '!' });

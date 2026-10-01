@@ -57,10 +57,6 @@ export function createDownloadsWriter(api, offscreen, { timeoutMs = 120000 } = {
         if (!taken.length) return candidate;
       }
     },
-    async absolutePath(id) {
-      const [item] = await api.downloads.search({ id });
-      return item?.filename ?? null;
-    },
     show(id) {
       api.downloads.show(id);
     },

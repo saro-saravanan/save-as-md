@@ -17,6 +17,7 @@
     "storage",
     "offscreen",
     "downloads",
+    "downloads.open",
     "downloads.ui",
     "clipboardWrite"
   ],
@@ -43,5 +44,15 @@
       },
       "description": "Save page as Markdown"
     }
-  }
+  },
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "open.html"
+      ],
+      "matches": [
+        "<all_urls>"
+      ]
+    }
+  ]
 }

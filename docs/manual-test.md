@@ -29,3 +29,5 @@ Rebuild with `npm run build`, then click reload on the SaveMD card in chrome://e
 | 23 | Save a page twice, choose Update existing | Notice button says Delete, not Undo |
 | 24 | Reload SaveMD in chrome://extensions, then save on an already-open tab | Saves normally (no stale content script) |
 | 25 | Two windows on different sites with different "On this site" modes; switch windows, right-click the button | Radio shows the focused window's site |
+| 26 | Save a Reddit thread (Reddit draws its own UI in the browser's top layer) | Notice visible above Reddit's UI |
+| 27 | Click Open in the notice | The .md opens in your default Markdown app; the notice closes |

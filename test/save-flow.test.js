@@ -4,7 +4,6 @@ import { datePrefix } from '../src/lib/filenames.js';
 
 const TAB = { id: 7, url: 'https://blog.ex.com/post?utm_source=x' };
 const KEY = 'https://blog.ex.com/post';
-const MD_PATH = 'C:\\Users\\me\\Downloads\\WebClips\\2026-09-30 T\\T.md';
 
 function sampleCapture(extra = {}) {
   return {
@@ -32,7 +31,6 @@ function makeDeps(over = {}) {
     downloads: {
       write: vi.fn(async () => [11, 12]),
       remove: vi.fn(async () => {}),
-      absolutePath: vi.fn(async () => MD_PATH),
       show: vi.fn(),
       freeFolderName: vi.fn(async (name) => (over.takenFolders ?? []).includes(name) ? `${name} (2)` : name),
     },
@@ -40,7 +38,6 @@ function makeDeps(over = {}) {
       get: vi.fn(async () => structuredClone(deps.settingsState)),
       patch: vi.fn(async (p) => Object.assign(deps.settingsState, p)),
     },
-    openExternal: vi.fn(async () => {}),
     badge: vi.fn(async () => {}),
     clearBadge: vi.fn(async () => {}),
     now: () => new Date(2026, 8, 30, 14, 5),
@@ -63,24 +60,25 @@ describe('save flow', () => {
     expect(deps.settingsState.saved[KEY]).toMatchObject({ folderName: '2026-09-30 T', markdownFile: 'T.md', downloadIds: [11, 12] });
   });
 
-  it('opens the saved file in VS Code', async () => {
-    const deps = makeDeps({ toastAnswers: ['open'] });
+  // Chrome only opens a download from a click inside the extension's own UI, so the Open button is an
+  // extension page embedded in the notice that opens the .md itself (with the default Markdown app).
+  it('offers Open as an extension button for the saved Markdown file', async () => {
+    const deps = makeDeps();
     await createSaveFlow(deps).save(TAB);
-    expect(deps.downloads.absolutePath).toHaveBeenCalledWith(12);
-    expect(deps.openExternal).toHaveBeenCalledWith(7, 'vscode://file/C:/Users/me/Downloads/WebClips/2026-09-30%20T/T.md');
+    expect(lastToast(deps).actions[0]).toEqual({ id: 'open', label: 'Open', frame: { path: 'open.html', downloadId: 12 } });
+  });
+
+  it('has nothing left to do once the Open button has opened the file', async () => {
+    const deps = makeDeps({ toastAnswers: ['open'] });
+    expect((await createSaveFlow(deps).save(TAB)).status).toBe('saved');
+    expect(deps.downloads.show).not.toHaveBeenCalled();
+    expect(deps.downloads.remove).not.toHaveBeenCalled();
   });
 
   it('shows the folder', async () => {
     const deps = makeDeps({ toastAnswers: ['folder'] });
     await createSaveFlow(deps).save(TAB);
     expect(deps.downloads.show).toHaveBeenCalledWith(12);
-  });
-
-  it('hides Open when Chrome does not report where the file went', async () => {
-    const deps = makeDeps();
-    deps.downloads.absolutePath = vi.fn(async () => null);
-    await createSaveFlow(deps).save(TAB);
-    expect(lastToast(deps).actions.map((a) => a.id)).toEqual(['folder', 'undo']);
   });
 
   it('uses the remembered mode for the site', async () => {

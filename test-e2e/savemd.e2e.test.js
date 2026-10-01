@@ -73,6 +73,15 @@ async function waitForToast(page, pattern) {
 const clickToast = (page, id) =>
   page.evaluate((actionId) => document.getElementById('savemd-toast-host').shadowRoot.querySelector(`[data-id="${actionId}"]`).click(), id);
 
+async function waitForOpenButton(page) {
+  for (let i = 0; i < 40; i++) {
+    const frame = page.frames().find((f) => f.url().includes('/open.html#'));
+    if (frame && (await frame.$('#open'))) return frame;
+    await new Promise((r) => setTimeout(r, 250));
+  }
+  throw new Error('The Open button never loaded');
+}
+
 async function saveWithToolbar(page, pattern = /^Saved/) {
   await page.triggerExtensionAction(extension);
   return waitForToast(page, pattern);
@@ -191,6 +200,36 @@ describe('SaveMD in Chrome', () => {
     const copied = (await page.evaluate(() => navigator.clipboard.readText())).replace(/\r\n/g, '\n');
     expect(copied).toMatch(/^---\ntitle: "Releases – Example Tools"/);
     expect(copied).toContain('| 3.2.0 | 2026-09-12 | Faster sync |');
+    await page.close();
+  });
+
+  it('shows its notice above a page overlay that covers everything', async () => {
+    const page = await open('/overlay.html');
+    await saveWithToolbar(page);
+    const onTop = await page.evaluate(() => {
+      const host = document.getElementById('savemd-toast-host');
+      const box = host.shadowRoot.querySelector('.toast').getBoundingClientRect();
+      const hit = document.elementFromPoint(box.left + box.width / 2, box.top + box.height / 2);
+      return { inTopLayer: host.matches(':popover-open'), hitIsNotice: hit === host, width: Math.round(box.width) };
+    });
+    expect(onTop).toMatchObject({ inTopLayer: true, hitIsNotice: true });
+    expect(onTop.width).toBeGreaterThan(100);
+    await page.close();
+  });
+
+  it('opens the saved file from the notice, even on a page that forbids frames', async () => {
+    const page = await open('/strict.html');
+    await saveWithToolbar(page);
+    const frame = await waitForOpenButton(page);
+    expect(await frame.$eval('#open', (b) => b.textContent)).toBe('Open');
+    const box = await (await frame.$('#open')).boundingBox();
+    expect(box.width).toBeGreaterThan(40);
+    // Delete the file first so nothing launches on this machine; Chrome then reports the missing
+    // file instead of "User gesture required", which proves the click came from the extension.
+    const downloadId = Number(new URL(frame.url()).hash.slice(1));
+    await worker.evaluate((id) => chrome.downloads.removeFile(id), downloadId);
+    await frame.click('#open');
+    await expect.poll(() => frame.$eval('#open', (b) => b.title), { timeout: 5000 }).toMatch(/deleted/i);
     await page.close();
   });
 

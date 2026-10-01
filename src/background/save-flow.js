@@ -1,7 +1,6 @@
 import { folderNameFor, datePrefix } from '../lib/filenames.js';
 import { normalizeForDedupe } from '../lib/urls.js';
 import { assembleDocument, remoteResults } from '../lib/assemble.js';
-import { vscodeFileUrl } from '../lib/paths.js';
 
 // Saves always go through Chrome's downloads into Downloads\WebClips. Chrome's folder-picker
 // permission doesn't survive for extensions (it lasts only while an extension tab is open), so
@@ -114,12 +113,11 @@ export function createSaveFlow(deps) {
       });
     }
 
-    // The Markdown file is downloaded last, so the last id is the .md.
-    const mdPath = await deps.downloads.absolutePath(downloadIds.at(-1));
-    const openUrl = mdPath ? vscodeFileUrl(mdPath) : null;
-    const choice = await quietToast(tab.id, savedToast(capture, result.stats, { openUrl, fellBack, replace }));
-    if (choice === 'open') await deps.openExternal(tab.id, openUrl);
-    if (choice === 'folder') deps.downloads.show(downloadIds.at(-1));
+    // The Markdown file is downloaded last, so the last id is the .md. 'open' needs no work here:
+    // the Open button is an extension page that opens the file itself (see open.html).
+    const mdDownloadId = downloadIds.at(-1);
+    const choice = await quietToast(tab.id, savedToast(capture, result.stats, { mdDownloadId, fellBack, replace }));
+    if (choice === 'folder') deps.downloads.show(mdDownloadId);
     if (choice === 'undo') await undo(tab, { downloadIds, key, remember, replace });
     return { status: 'saved', folderName, stats: result.stats };
   }
@@ -155,7 +153,7 @@ export function createSaveFlow(deps) {
   }
 }
 
-function savedToast(capture, stats, { openUrl, fellBack, replace }) {
+function savedToast(capture, stats, { mdDownloadId, fellBack, replace }) {
   const parts = [];
   let tone = 'ok';
   if (stats.failed > 0) {
@@ -167,7 +165,9 @@ function savedToast(capture, stats, { openUrl, fellBack, replace }) {
   }
   if (fellBack) parts.push('full page');
   const actions = [];
-  if (openUrl) actions.push({ id: 'open', label: 'Open in VS Code' });
+  // Chrome opens a download only from a click inside the extension's own UI, so this button is
+  // rendered as an embedded extension page rather than a plain button in the web page.
+  actions.push({ id: 'open', label: 'Open', frame: { path: 'open.html', downloadId: mdDownloadId } });
   actions.push({ id: 'folder', label: 'Show folder' });
   actions.push({ id: 'undo', label: replace ? 'Delete' : 'Undo' });
   return { tone, text: parts.join(' · '), actions };

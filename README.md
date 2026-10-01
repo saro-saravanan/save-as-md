@@ -16,6 +16,10 @@ Save any page as clean Markdown with local images, one click. Built to replace p
   - how to save this site (per-site mode)
   - Reddit comment depth
 - **Right-click the page:** Save page, or Save selection.
+- **After saving,** the notice offers **Open**, **Show folder** and **Undo**. **Open** opens the `.md` with your Windows default app for Markdown files.
+
+## Choosing the app that opens saved pages
+**Open** uses whatever Windows opens `.md` files with, so any editor works: MarkText (free), Typora (paid), Obsidian, VS Code, and so on. To change it, right-click any `.md` file → **Open with** → **Choose another app**, pick the editor, and tick **Always use this app to open .md files**.
 
 ## Saving into your own folder
 Chrome doesn't let extensions keep access to a folder you pick (access ends as soon as the extension's own tab closes), so SaveMD always saves through Chrome's downloads. To have pages land somewhere else, link `Downloads\WebClips` to that folder with a Windows directory junction:
