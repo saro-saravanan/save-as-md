@@ -25,3 +25,7 @@ Rebuild with `npm run build`, then click reload on the SaveMD card in chrome://e
 | 19 | Pick an area, wait 40 s before clicking; save, hover the notice 40 s, then Undo | Both still work |
 | 20 | Save, then immediately follow a link | No "Couldn't save" error on the next page |
 | 21 | Save two different selections of the same page to Downloads | Two folders ("… (2)"), nothing overwritten |
+| 22 | Open a local .html file (file://), click the button | Badge explains "Allow access to file URLs" |
+| 23 | Save a page twice, choose Update existing | Notice button says Delete, not Undo |
+| 24 | Reload SaveMD in chrome://extensions, then save on an already-open tab | Saves normally (no stale content script) |
+| 25 | Two windows on different sites with different "On this site" modes; switch windows, right-click the button | Radio shows the focused window's site |

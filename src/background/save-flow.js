@@ -5,6 +5,7 @@ import { joinPath, vscodeFileUrl } from '../lib/paths.js';
 
 const PROTECTED = /cannot access|cannot be scripted|chrome:\/\/|chrome-extension:\/\/|extensions gallery|webstore/i;
 const PROTECTED_TEXT = "This page can't be saved: the browser doesn't allow extensions on it.";
+const FILE_URL_TEXT = 'To save local files, turn on "Allow access to file URLs" for SaveMD in chrome://extensions.';
 const EMPTY_TEXT = "Couldn't find anything to save here. Right-click the SaveMD button → Pick an area to save…";
 const fmt = (n) => n.toLocaleString('en-US');
 const hostOf = (url) => {
@@ -38,6 +39,8 @@ export function createSaveFlow(deps) {
   }
 
   async function run(tab, { scope = 'page', dest = 'default' }) {
+    // Fail fast on pages the browser protects, before asking for (or re-allowing) a folder.
+    await deps.page.probe(tab.id);
     const settings = await deps.settings.get();
     const target = await resolveTarget(dest, settings);
     if (!target) {
@@ -130,10 +133,10 @@ export function createSaveFlow(deps) {
     }
 
     const openUrl = await openUrlFor(target, result, downloadIds, settings);
-    const choice = await quietToast(tab.id, savedToast(capture, result.stats, { openUrl, downloads: target.kind === 'downloads', fellBack }));
+    const choice = await quietToast(tab.id, savedToast(capture, result.stats, { openUrl, downloads: target.kind === 'downloads', fellBack, replace }));
     if (choice === 'open') await deps.openExternal(tab.id, openUrl);
     if (choice === 'folder') deps.downloads.show(downloadIds.at(-1));
-    if (choice === 'undo') await undo(tab, { target, result, downloadIds, key, remember });
+    if (choice === 'undo') await undo(tab, { target, result, downloadIds, key, remember, replace });
     return { status: 'saved', folderName: result.folderName, stats: result.stats };
   }
 
@@ -148,7 +151,7 @@ export function createSaveFlow(deps) {
     return null;
   }
 
-  async function undo(tab, { target, result, downloadIds, key, remember }) {
+  async function undo(tab, { target, result, downloadIds, key, remember, replace }) {
     if (target.kind === 'downloads') await deps.downloads.remove(downloadIds);
     else await deps.offscreen.remove(target.key, result.folderName);
     if (remember) {
@@ -156,11 +159,19 @@ export function createSaveFlow(deps) {
       delete saved[key];
       await deps.settings.patch({ saved });
     }
-    await quietToast(tab.id, { tone: 'ok', text: 'Removed.', timeoutMs: 3000 });
+    // The previous version was replaced, so this can't restore it; say what actually happened.
+    let text = replace ? 'Deleted.' : 'Removed.';
+    // Chrome's downloads API deletes files but not the folders they were in.
+    if (target.kind === 'downloads') text += ' Chrome leaves the empty folder in Downloads\\WebClips.';
+    await quietToast(tab.id, { tone: 'ok', text, timeoutMs: 4000 });
   }
 
   async function report(tab, err) {
     const message = err?.message || String(err);
+    if (/file:\/\//i.test(message)) {
+      await deps.badge(tab.id, FILE_URL_TEXT);
+      return;
+    }
     if (PROTECTED.test(message)) {
       await deps.badge(tab.id, PROTECTED_TEXT);
       return;
@@ -173,7 +184,7 @@ export function createSaveFlow(deps) {
   }
 }
 
-function savedToast(capture, stats, { openUrl, downloads, fellBack }) {
+function savedToast(capture, stats, { openUrl, downloads, fellBack, replace }) {
   const parts = [];
   let tone = 'ok';
   if (stats.failed > 0) {
@@ -187,6 +198,6 @@ function savedToast(capture, stats, { openUrl, downloads, fellBack }) {
   const actions = [];
   if (openUrl) actions.push({ id: 'open', label: 'Open in VS Code' });
   if (downloads) actions.push({ id: 'folder', label: 'Show folder' });
-  actions.push({ id: 'undo', label: 'Undo' });
+  actions.push({ id: 'undo', label: replace ? 'Delete' : 'Undo' });
   return { tone, text: parts.join(' · '), actions };
 }

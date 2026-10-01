@@ -1,7 +1,7 @@
 import { getHandle } from '../lib/handle-store.js';
-import { fetchImages, planFiles, writeFolder } from './writer.js';
+import { fetchImages, planFiles, writeFolder, JobStore } from './writer.js';
 
-const pending = new Map(); // jobId → fetched images, kept here so Blobs never cross messaging
+const pending = new JobStore(); // jobId → fetched images, kept here so Blobs never cross messaging
 
 chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
   if (msg?.target !== 'offscreen') return false;
@@ -42,8 +42,7 @@ async function handle(msg) {
 }
 
 async function write({ jobId, capture, target, folderName, replace, pageData = {} }) {
-  const fetched = pending.get(jobId) || [];
-  pending.delete(jobId);
+  const fetched = pending.take(jobId) || [];
   await Promise.all(capture.images.map(async (img, i) => {
     const dataUrl = img.url && pageData[img.url];
     if (!fetched[i]?.ok && dataUrl) fetched[i] = { ok: true, blob: await (await fetch(dataUrl)).blob() };

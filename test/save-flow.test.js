@@ -17,6 +17,7 @@ function makeDeps(over = {}) {
     settingsState: { destination: 'folder', folderPath: 'C:\\Clips', redditMode: 'top', siteModes: {}, saved: {}, ...over.settings },
     toastAnswers: [...(over.toastAnswers ?? [])],
     page: {
+      probe: over.probe ?? vi.fn(async () => {}),
       capture: over.capture ?? vi.fn(async () => ({ capture: sampleCapture(over.captureExtra) })),
       toast: vi.fn(async () => deps.toastAnswers.shift() ?? null),
       fetchInPage: vi.fn(async (_t, urls) => urls.map((url) => ({ url, dataUrl: 'data:image/png;base64,AAA' }))),
@@ -223,6 +224,38 @@ describe('save flow', () => {
     it('still saves an image-only page', async () => {
       const deps = makeDeps({ captureExtra: { wordCount: 0 }, usable: 1 });
       expect((await createSaveFlow(deps).save(TAB)).status).toBe('saved');
+    });
+  });
+
+  describe('deferred minors', () => {
+    it('checks the page before asking for a folder', async () => {
+      const probe = vi.fn(async () => { throw new Error('Cannot access contents of url "chrome://settings/".'); });
+      const deps = makeDeps({ probe, permission: 'missing' });
+      expect((await createSaveFlow(deps).save({ id: 7, url: 'chrome://settings/' })).status).toBe('error');
+      expect(deps.folders.pick).not.toHaveBeenCalled();
+      expect(deps.badge).toHaveBeenCalledWith(7, "This page can't be saved: the browser doesn't allow extensions on it.");
+    });
+
+    it('explains how to enable local files', async () => {
+      const probe = vi.fn(async () => { throw new Error('Cannot access contents of url "file:///C:/notes/a.html". Extension manifest must request permission to access this host.'); });
+      const deps = makeDeps({ probe });
+      await createSaveFlow(deps).save({ id: 7, url: 'file:///C:/notes/a.html' });
+      expect(deps.badge).toHaveBeenCalledWith(7, 'To save local files, turn on "Allow access to file URLs" for SaveMD in chrome://extensions.');
+    });
+
+    it('labels Undo as Delete after updating an existing save', async () => {
+      const previous = { target: 'folder:default', folderName: '2026-09-01 T', savedAt: '2026-09-01T10:00:00.000Z' };
+      const deps = makeDeps({ settings: { saved: { [KEY]: previous } }, toastAnswers: ['update', 'undo'] });
+      await createSaveFlow(deps).save(TAB);
+      const saved = deps.page.toast.mock.calls[1][1];
+      expect(saved.actions.find((a) => a.id === 'undo').label).toBe('Delete');
+      expect(lastToast(deps).text).toBe('Deleted.');
+    });
+
+    it('says an empty folder is left after undoing a Downloads save', async () => {
+      const deps = makeDeps({ settings: { destination: 'downloads' }, toastAnswers: ['undo'] });
+      await createSaveFlow(deps).save(TAB);
+      expect(lastToast(deps).text).toBe('Removed. Chrome leaves the empty folder in Downloads\\WebClips.');
     });
   });
 });

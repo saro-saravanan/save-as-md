@@ -16,13 +16,27 @@ const CSS = `
 
 let current = null;
 
+// A constructed stylesheet isn't subject to the page's style-src CSP the way an inline <style> is.
+function applyStyles(root, doc) {
+  if (typeof CSSStyleSheet === 'function' && 'replaceSync' in CSSStyleSheet.prototype) {
+    const sheet = new CSSStyleSheet();
+    sheet.replaceSync(CSS);
+    root.adoptedStyleSheets = [sheet];
+    return;
+  }
+  const style = doc.createElement('style');
+  style.textContent = CSS;
+  root.prepend(style);
+}
+
 export function showToast({ tone = 'ok', text, actions = [], timeoutMs = 8000 }, doc = document) {
   current?.close(null);
   return new Promise((resolve) => {
     const host = doc.createElement('div');
     host.id = HOST_ID;
     const root = host.attachShadow({ mode: 'open' });
-    root.innerHTML = `<style>${CSS}</style><div class="toast ${tone}" role="status"><span class="text"></span><span class="actions"></span><button class="close" aria-label="Dismiss">×</button></div>`;
+    root.innerHTML = `<div class="toast ${tone}" role="status"><span class="text"></span><span class="actions"></span><button class="close" aria-label="Dismiss">×</button></div>`;
+    applyStyles(root, doc);
     root.querySelector('.text').textContent = text;
     for (const action of actions) {
       const btn = doc.createElement('button');

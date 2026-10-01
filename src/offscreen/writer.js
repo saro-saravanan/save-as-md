@@ -2,6 +2,29 @@ import { assetName, extFor, markdownFileName, withSuffix } from '../lib/filename
 import { assembleDocument } from '../lib/assemble.js';
 import { MIN_IMAGE_PX } from '../lib/to-markdown.js';
 
+// Holds fetched images between the 'fetch-images' and 'write' messages. A save that fails in
+// between never calls take(), so entries older than the TTL are dropped on the next set().
+export class JobStore {
+  constructor({ ttlMs = 5 * 60_000, now = () => Date.now() } = {}) {
+    this.ttlMs = ttlMs;
+    this.now = now;
+    this.jobs = new Map();
+  }
+  get size() {
+    return this.jobs.size;
+  }
+  set(id, value) {
+    const cutoff = this.now() - this.ttlMs;
+    for (const [key, job] of this.jobs) if (job.at <= cutoff) this.jobs.delete(key);
+    this.jobs.set(id, { value, at: this.now() });
+  }
+  take(id) {
+    const job = this.jobs.get(id);
+    this.jobs.delete(id);
+    return job?.value;
+  }
+}
+
 export async function fetchImages(images, { fetchImpl = fetch, measure = measureBitmap, concurrency = 6 } = {}) {
   const results = new Array(images.length);
   let next = 0;

@@ -1,6 +1,6 @@
 // @vitest-environment node
 import { describe, it, expect } from 'vitest';
-import { fetchImages, planFiles, writeFolder } from '../src/offscreen/writer.js';
+import { fetchImages, planFiles, writeFolder, JobStore } from '../src/offscreen/writer.js';
 import { FakeDir } from './helpers/fake-fs.js';
 
 const png = () => new Blob(['PNG'], { type: 'image/png' });
@@ -88,5 +88,18 @@ describe('writeFolder', () => {
     const root = new FakeDir('root', 'img-01.png');
     await expect(writeFolder(root, 'F', files())).rejects.toThrow('disk full');
     expect(root.entries.has('F')).toBe(false);
+  });
+});
+
+describe('JobStore', () => {
+  it('hands each job out once and forgets abandoned jobs', () => {
+    let t = 0;
+    const store = new JobStore({ ttlMs: 1000, now: () => t });
+    store.set('abandoned', ['blob']);
+    t = 2000;
+    store.set('current', ['blob2']);
+    expect(store.size).toBe(1);
+    expect(store.take('current')).toEqual(['blob2']);
+    expect(store.take('current')).toBeUndefined();
   });
 });

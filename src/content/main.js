@@ -2,19 +2,27 @@ import { runCapture } from './capture.js';
 import { showToast } from './toast.js';
 import { pickElement } from './picker.js';
 
-// Injected on every save; install the listener only once per page.
-if (!window.__savemdLoaded) {
-  window.__savemdLoaded = true;
-  chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
-    // Picking an area or answering a notice can outlast the service worker's 30 s idle timeout;
-    // a pending reply doesn't count as activity, so ping it while we wait.
-    const keepalive = setInterval(() => chrome.runtime.sendMessage({ type: 'keepalive' }).catch(() => {}), 20000);
-    handle(msg)
-      .then(sendResponse, (err) => sendResponse({ error: err?.message || String(err) }))
-      .finally(() => clearInterval(keepalive));
-    return true;
-  });
+// Injected only when no live copy answers a ping (see page-client.js). Replace any older listener
+// rather than skipping: after an extension reload the old one is orphaned and can no longer reply.
+try {
+  if (window.__savemdListener) chrome.runtime.onMessage.removeListener(window.__savemdListener);
+} catch {
+  // The old listener belonged to an invalidated extension context; nothing to remove.
 }
+window.__savemdListener = (msg, _sender, sendResponse) => {
+  if (msg?.type === 'ping') {
+    sendResponse('pong');
+    return false;
+  }
+  // Picking an area or answering a notice can outlast the service worker's 30 s idle timeout;
+  // a pending reply doesn't count as activity, so ping it while we wait.
+  const keepalive = setInterval(() => chrome.runtime.sendMessage({ type: 'keepalive' }).catch(() => {}), 20000);
+  handle(msg)
+    .then(sendResponse, (err) => sendResponse({ error: err?.message || String(err) }))
+    .finally(() => clearInterval(keepalive));
+  return true;
+};
+chrome.runtime.onMessage.addListener(window.__savemdListener);
 
 async function handle(msg) {
   if (msg.type === 'capture') {

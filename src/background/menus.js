@@ -41,10 +41,18 @@ export function interpretMenuClick(id) {
   return null;
 }
 
+// Called from tab and window events; must never throw (menus may not exist yet on first install).
 export async function syncMenus(url) {
   if (!url?.startsWith('http')) return;
-  const { siteModes, redditMode } = await getSettings();
-  chrome.contextMenus.update(`mode:${siteModes[new URL(url).hostname] || 'auto'}`, { checked: true });
-  chrome.contextMenus.update('reddit', { visible: isRedditThread(url) });
-  chrome.contextMenus.update(`reddit:${redditMode}`, { checked: true });
+  try {
+    const { siteModes, redditMode } = await getSettings();
+    const update = (id, props) => Promise.resolve(chrome.contextMenus.update(id, props)).catch(() => {});
+    await Promise.all([
+      update(`mode:${siteModes[new URL(url).hostname] || 'auto'}`, { checked: true }),
+      update('reddit', { visible: isRedditThread(url) }),
+      update(`reddit:${redditMode}`, { checked: true }),
+    ]);
+  } catch {
+    // Settings unavailable or a malformed URL: leave the menus as they are.
+  }
 }

@@ -38,4 +38,28 @@ describe('showToast', () => {
     await expect(first).resolves.toBeNull();
     expect(document.querySelectorAll('#savemd-toast-host')).toHaveLength(1);
   });
+
+  it('styles itself with a constructed stylesheet so page CSP cannot block it', () => {
+    const original = globalThis.CSSStyleSheet;
+    globalThis.CSSStyleSheet = class { replaceSync(text) { this.text = text; } };
+    try {
+      showToast({ text: 'x' });
+      expect(shadow().querySelector('style')).toBeNull();
+      expect(shadow().adoptedStyleSheets).toHaveLength(1);
+      expect(shadow().adoptedStyleSheets[0].text).toContain('.toast');
+    } finally {
+      globalThis.CSSStyleSheet = original;
+    }
+  });
+
+  it('falls back to a <style> element where constructed stylesheets are unavailable', () => {
+    const original = globalThis.CSSStyleSheet;
+    globalThis.CSSStyleSheet = undefined;
+    try {
+      showToast({ text: 'x' });
+      expect(shadow().querySelector('style').textContent).toContain('.toast');
+    } finally {
+      globalThis.CSSStyleSheet = original;
+    }
+  });
 });

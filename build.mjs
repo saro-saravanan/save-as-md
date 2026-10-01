@@ -14,12 +14,13 @@ const STATIC = {
   'offscreen.html': 'src/offscreen/offscreen.html',
   'options.html': 'src/pages/options.html',
   'folder.html': 'src/pages/folder.html',
+  icons: 'icons',
 };
 
 // Entries appear task by task; build whatever exists so far.
 const entryPoints = Object.fromEntries(Object.entries(ENTRIES).filter(([, p]) => existsSync(p)));
 await mkdir('dist', { recursive: true });
-for (const [to, from] of Object.entries(STATIC)) if (existsSync(from)) await cp(from, `dist/${to}`);
+for (const [to, from] of Object.entries(STATIC)) if (existsSync(from)) await cp(from, `dist/${to}`, { recursive: true });
 if (!Object.keys(entryPoints).length) process.exit(0);
 
 const ctx = await esbuild.context({
