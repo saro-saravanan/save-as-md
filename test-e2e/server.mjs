@@ -45,6 +45,15 @@ export function startServer() {
       if (url.pathname === '/empty.html') {
         return send(200, 'text/html; charset=utf-8', '<!doctype html><html><head><title>App</title></head><body><div id="root"></div><canvas width="600" height="400"></canvas></body></html>');
       }
+      // Code examples rendered by a web component into its shadow root, the way MDN does it.
+      if (url.pathname === '/components.html') {
+        return send(200, 'text/html; charset=utf-8', `<!doctype html><html><head><title>Component docs</title></head><body>
+          <article><h1>Component docs</h1>${paragraphs(3)}<code-example data-code="const answer = await fetch(url);"></code-example>${paragraphs(3)}</article>
+          <script>customElements.define('code-example', class extends HTMLElement {
+            connectedCallback() { const pre = document.createElement('pre'); pre.className = 'language-js'; pre.textContent = this.dataset.code;
+              this.attachShadow({ mode: 'open' }).append(pre); }
+          });</script></body></html>`);
+      }
       // A strict page: no frames, no inline styles. SaveMD's notice and Open button must still work.
       if (url.pathname === '/strict.html') {
         res.writeHead(200, { 'content-type': 'text/html; charset=utf-8', 'content-security-policy': "default-src 'self'; frame-src 'none'; style-src 'none'" });

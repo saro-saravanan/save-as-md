@@ -4,9 +4,10 @@ import { htmlToMarkdown, markCodeLanguages } from './to-markdown.js';
 import { countWords } from './assemble.js';
 import { redditToMarkdown } from './reddit.js';
 import { stripTracking } from './urls.js';
+import { composedClone } from './composed-clone.js';
 
 export function capturePage(doc, { url, mode = 'auto', fragmentHtml = null, fragmentKind = 'selection', now = new Date(), parseArticle } = {}) {
-  const clone = doc.cloneNode(true);
+  const clone = composedClone(doc); // includes what web components render (shadow DOM)
   resolveLazyImages(clone, url);
   markCodeLanguages(clone);
   let fragment = null;

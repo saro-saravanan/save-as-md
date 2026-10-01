@@ -233,6 +233,14 @@ describe('SaveMD in Chrome', () => {
     await page.close();
   });
 
+  it('keeps code that web components render in their shadow DOM', async () => {
+    const page = await open('/components.html');
+    await saveWithToolbar(page);
+    const md = await readFile(join(clips(), `${today()} Component docs`, 'Component docs.md'), 'utf8');
+    expect(md).toContain('```js\nconst answer = await fetch(url);\n```');
+    await page.close();
+  });
+
   it('badges browser pages it is not allowed to read', async () => {
     const page = await open('chrome://version');
     const tabId = await activeTabId();

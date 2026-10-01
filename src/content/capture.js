@@ -1,5 +1,6 @@
 import { capturePage, captureReddit } from '../lib/pipeline.js';
 import { isRedditThread, redditJsonUrl } from '../lib/reddit.js';
+import { composedOuterHTML } from '../lib/composed-clone.js';
 
 export async function runCapture({ scope = 'page', mode = 'auto', redditMode = 'top' } = {}, env) {
   const { doc, url, fetchImpl, pickElement, selectionHtml } = env;
@@ -22,7 +23,7 @@ export async function runCapture({ scope = 'page', mode = 'auto', redditMode = '
   if (scope === 'pick') {
     const el = await pickElement(doc);
     if (!el) return { cancelled: true };
-    return { capture: capturePage(doc, { url, mode, fragmentHtml: el.outerHTML, fragmentKind: 'pick' }) };
+    return { capture: capturePage(doc, { url, mode, fragmentHtml: composedOuterHTML(el), fragmentKind: 'pick' }) };
   }
   return { capture: capturePage(doc, { url, mode }) };
 }
