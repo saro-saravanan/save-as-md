@@ -22,11 +22,13 @@ Save any page as clean Markdown with local images, one click. Built to replace p
 **Open** uses whatever Windows opens `.md` files with, so any editor works: MarkText (free), Typora (paid), Obsidian, VS Code, and so on. To change it, right-click any `.md` file → **Open with** → **Choose another app**, pick the editor, and tick **Always use this app to open .md files**.
 
 ## Saving into your own folder
-Chrome doesn't let extensions keep access to a folder you pick (access ends as soon as the extension's own tab closes), so SaveMD always saves through Chrome's downloads. To have pages land somewhere else, link `Downloads\WebClips` to that folder with a Windows directory junction:
+Chrome doesn't let extensions keep access to a folder you pick (access ends as soon as the extension's own tab closes), so SaveMD always saves through Chrome's downloads. To have pages land somewhere else, link `Downloads\WebClips` to that folder with a Windows directory junction. No tools needed:
 
-    npm run link -- "C:\Users\you\OneDrive\Clips"
+1. Open SaveMD's **Options** (right-click the toolbar button → Options).
+2. Type the folder, click **Copy command**.
+3. Press Windows+X → **Terminal**, paste, press Enter.
 
-It finds your real Downloads folder (even if Windows moved it), moves anything already in `WebClips` into your folder, and creates the link. Run it again with another folder to change it. If you changed Chrome's download location, pass it too: `--downloads "D:\Downloads"`.
+The command moves anything already in `WebClips` into your folder (it stops before moving anything if a name clashes), replaces an old link, and creates the new one. Run it again with another folder to change it. Windows only for now; on Mac, pages stay in `Downloads/WebClips`.
 
 ## When a page converts badly
 1. Add it to `docs/failures.md`.

@@ -14,7 +14,7 @@ Rebuild with `npm run build`, then click reload on the SaveMD card in chrome://e
 | 8 | Right-click → Pick an area to save…, click a region | Only that region saved |
 | 9 | Select text → right-click page → Save selection as Markdown | Only the selection saved |
 | 10 | Right-click → Copy page as Markdown, paste into Claude | Clean Markdown, remote image links |
-| 11 | After `npm run link -- "<your folder>"`, save a page | Page folder appears in your folder; Show folder opens it |
+| 11 | Options → type a folder → Copy command → paste into Windows Terminal; then save a page | Page folder appears in your folder; Show folder opens it |
 | 12 | Save, then Undo | Folder removed, "Removed." |
 | 13 | Restart Chrome, save | Saves with no prompts at all |
 | 14 | chrome://extensions, click the button | Red "!" badge with explanation |

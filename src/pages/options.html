@@ -8,9 +8,17 @@
   code { font: 13px ui-monospace, "Cascadia Mono", Consolas, monospace; background: #f6f8fa; padding: 1px 4px; border-radius: 4px; }
   pre { font: 13px ui-monospace, "Cascadia Mono", Consolas, monospace; background: #f6f8fa; padding: 8px 10px; border-radius: 6px; overflow-x: auto; }
   .hint { color: #59636e; }
+  label { display: block; font-weight: 600; margin: 12px 0 6px; }
+  .row { display: flex; gap: 8px; }
+  input[type=text] { flex: 1; min-width: 0; font: inherit; padding: 6px 8px; border: 1px solid #d1d9e0; border-radius: 6px; background: inherit; color: inherit; }
+  button { font: inherit; padding: 6px 12px; border-radius: 6px; border: 0; background: #1f883d; color: #fff; cursor: pointer; white-space: nowrap; }
+  .error { color: #d1242f; }
+  ol { padding-left: 20px; margin: 12px 0; line-height: 1.7; }
+  kbd { font: 12px ui-monospace, "Cascadia Mono", Consolas, monospace; border: 1px solid #d1d9e0; border-bottom-width: 2px; border-radius: 4px; padding: 0 4px; }
   @media (prefers-color-scheme: dark) {
     body { background: #0d1117; color: #e6edf3; } .hint { color: #9198a1; }
     code, pre { background: #161b22; }
+    input[type=text], kbd { border-color: #3d444d; } .error { color: #f85149; }
   }
 </style></head>
 <body>
@@ -21,9 +29,19 @@
 <p id="last-save" class="hint" hidden></p>
 
 <h2>Saving into a folder of your choice</h2>
-<p>Chrome won't let extensions keep access to a folder you pick, so instead point <code>WebClips</code> at your folder with a Windows link. From the SaveMD project folder, run:</p>
-<pre>npm run link -- "C:\Users\you\OneDrive\Clips"</pre>
-<p class="hint">Pages already in <code>WebClips</code> are moved into your folder first. Chrome then writes through the link, so new pages land in your folder with no prompts. Run it again with a different folder to change it.</p>
+<div id="link-windows">
+<p>Chrome won't let extensions keep access to a folder you pick, so instead point <code>WebClips</code> at your folder with a Windows link. It takes one pasted command:</p>
+<label for="target">Folder where saved pages should go</label>
+<div class="row"><input id="target" type="text" placeholder="C:\Users\you\Documents\Clips" spellcheck="false"><button id="copy" type="button">Copy command</button></div>
+<p id="target-error" class="error" hidden></p>
+<ol id="steps" hidden>
+  <li>Press <kbd>Windows</kbd> + <kbd>X</kbd> and choose <strong>Terminal</strong>.</li>
+  <li>Paste with <kbd>Ctrl</kbd> + <kbd>V</kbd> and press <kbd>Enter</kbd>.</li>
+  <li>It answers <code>Linked … -&gt; …</code>. New pages now land in your folder.</li>
+</ol>
+<p class="hint">Pages already in <code>WebClips</code> are moved into your folder first; nothing is deleted. Run it again with another folder to change it.</p>
+</div>
+<p id="link-other" class="hint" hidden>Linking a folder is Windows-only for now. Saved pages stay in <code>Downloads/WebClips</code>.</p>
 
 <h2>Keyboard shortcut</h2>
 <p class="hint">Default Alt+Shift+S. <a href="#" id="shortcuts">Change shortcut</a></p>

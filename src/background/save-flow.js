@@ -4,7 +4,7 @@ import { assembleDocument, remoteResults } from '../lib/assemble.js';
 
 // Saves always go through Chrome's downloads into Downloads\WebClips. Chrome's folder-picker
 // permission doesn't survive for extensions (it lasts only while an extension tab is open), so
-// people who want another folder link WebClips to it instead (scripts/link-webclips.mjs).
+// people who want another folder link WebClips to it instead (the command on the Options page).
 
 const PROTECTED = /cannot access|cannot be scripted|chrome:\/\/|chrome-extension:\/\/|extensions gallery|webstore/i;
 const PROTECTED_TEXT = "This page can't be saved: the browser doesn't allow extensions on it.";

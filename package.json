@@ -11,8 +11,7 @@
     "watch": "node build.mjs --watch",
     "add-fixture": "node scripts/add-fixture.mjs",
     "icons": "node scripts/make-icons.mjs",
-    "e2e": "node build.mjs --e2e && vitest run --config vitest.e2e.config.js",
-    "link": "node scripts/link-webclips.mjs"
+    "e2e": "node build.mjs --e2e && vitest run --config vitest.e2e.config.js"
   },
   "repository": {
     "type": "git",
