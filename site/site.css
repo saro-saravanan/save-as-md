@@ -17,7 +17,8 @@
   --mono: 'Courier Prime', 'Courier New', monospace;
   --ease: cubic-bezier(.16, 1, .3, 1);
   --gutter: clamp(14px, 3.4vw, 44px);
-  --paper: url(assets/paper-fibers.webp);
+  --paper: url(assets/paper-stock.webp);
+  --paper-ground: url(assets/paper-ground.webp);
 }
 
 *, *::before, *::after { box-sizing: border-box; }
@@ -27,7 +28,7 @@ body {
   margin: 0;
   font: 400 18px/1.55 var(--serif);
   color: var(--ink);
-  background: var(--buff) var(--paper);
+  background: #efe3bd var(--paper-ground);
   background-blend-mode: multiply;
   -webkit-font-smoothing: antialiased;
 }

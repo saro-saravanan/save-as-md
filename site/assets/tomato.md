@@ -4,7 +4,7 @@ source: "https://en.wikipedia.org/wiki/Heirloom_tomato"
 site: "Wikimedia Foundation, Inc."
 author: "Contributors to Wikimedia projects"
 published: "2005-08-15T02:46:01Z"
-saved: "2026-10-01T18:28:32.069Z"
+saved: "2026-10-01T18:59:08.423Z"
 ---
 
 # Heirloom tomato

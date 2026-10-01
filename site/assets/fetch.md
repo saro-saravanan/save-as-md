@@ -3,7 +3,7 @@ title: "Using the Fetch API - Web APIs | MDN"
 source: "https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch"
 site: "MDN Web Docs"
 published: "2025-08-20T18:33:20.000Z"
-saved: "2026-10-01T18:29:00.261Z"
+saved: "2026-10-01T18:59:25.383Z"
 ---
 
 # Using the Fetch API - Web APIs | MDN

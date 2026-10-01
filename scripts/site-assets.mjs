@@ -27,16 +27,19 @@ const facts = {};
 
 for (const { key, url } of PAGES) {
   const page = await browser.newPage();
-  await page.setViewport({ width: 1280, height: 860, deviceScaleFactor: 2 });
+  // A phone-width viewport (320 px; the crop keeps its left edge and drops only the right margin), so the article reflows to the packet window and lines wrap at whole words.
+  await page.setViewport({ width: 320, height: 860, deviceScaleFactor: 2 });
   await page.goto(url, { waitUntil: 'networkidle2', timeout: 60000 });
   // The packet window shows the article from its title down: no campaign banners, site chrome or ads.
   const clip = await page.evaluate(() => {
     for (const sel of ['#siteNotice', '#centralNotice', '.cdx-message']) document.querySelectorAll(sel).forEach((e) => e.remove());
     window.scrollTo(0, 0);
     const r = document.querySelector('main h1, #firstHeading, h1').getBoundingClientRect();
-    return { x: Math.max(0, r.left - 10), y: Math.max(0, r.top - 12), width: 480, height: 420 };
+    // About 300 CSS px wide: shown in a ~225 px window, the page's own text stays readable (~11 px).
+    return { x: 0, y: Math.max(0, r.top - 10), width: 304, height: 266 };
   });
   await page.screenshot({ path: join(OUT, `${key}-page.png`), clip });
+  await page.setViewport({ width: 1280, height: 860, deviceScaleFactor: 2 });
   await page.triggerExtensionAction(extension);
   await page.waitForFunction(() => /^Saved/.test(document.getElementById('savemd-toast-host')?.shadowRoot?.querySelector('.text')?.textContent ?? ''), { timeout: 90000 });
   await new Promise((r) => setTimeout(r, 600));

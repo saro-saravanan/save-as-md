@@ -4,7 +4,7 @@ source: "https://en.wikipedia.org/wiki/Snap_pea"
 site: "Wikimedia Foundation, Inc."
 author: "Contributors to Wikimedia projects"
 published: "2005-02-05T18:52:45Z"
-saved: "2026-10-01T18:28:42.197Z"
+saved: "2026-10-01T18:59:16.978Z"
 ---
 
 # Snap pea
