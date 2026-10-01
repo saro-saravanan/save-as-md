@@ -29,14 +29,14 @@ export function redditToMarkdown(json, mode = 'top') {
   };
 
   const parts = [`*${post.subreddit_name_prefixed} · u/${post.author} · ${post.score} points · ${isoDate(post.created_utc)}*`];
-  if (post.selftext) parts.push(post.selftext.trim());
+  if (post.selftext) parts.push(inlineImages(post.selftext.trim(), post.media_metadata, addImage));
   parts.push(...postMedia(post, addImage));
   if (post.url && !post.is_self && !isMediaPost(post)) parts.push(`Link: <${decodeEntities(post.url)}>`);
 
   if (mode !== 'post') {
     const listing = json[1]?.data?.children || [];
     const roots = mode === 'top' ? listing.filter((c) => c.kind === 't1').slice(0, REDDIT_TOP_N) : listing;
-    const rendered = renderComments(roots, 1, REDDIT_MAX_DEPTH[mode] ?? 4);
+    const rendered = renderComments(roots, 1, REDDIT_MAX_DEPTH[mode] ?? 4, addImage);
     if (rendered.length) parts.push('---', '## Comments', ...rendered);
   }
 
@@ -71,7 +71,42 @@ function postMedia(post, addImage) {
   return [];
 }
 
-function renderComments(children, depth, maxDepth) {
+const IMAGE_HOSTS = /^(preview|i|external-preview)\.redd\.it$/i;
+const IMAGE_PATH = /\.(png|jpe?g|gif|webp|avif)$/i;
+// A bare URL: at the start or after whitespace, so link targets like [text](url) are left alone.
+const BARE_URL = /(^|\s)(https?:\/\/[^\s<>()[\]]+)/g;
+// Reddit's own embed syntax: ![gif](giphy|ID) or ![img](mediaId), resolved through media_metadata.
+const EMBED = /!\[([^\]]*)\]\(([^)\s]+)\)/g;
+
+function isImageUrl(url) {
+  try {
+    const u = new URL(url);
+    return IMAGE_HOSTS.test(u.hostname) || IMAGE_PATH.test(u.pathname);
+  } catch {
+    return false;
+  }
+}
+
+function embedUrl(ref, media = {}) {
+  const m = media[ref];
+  const fromMetadata = m?.status === 'valid' ? m.s?.gif || m.s?.u : null;
+  if (fromMetadata) return fromMetadata;
+  const giphy = /^giphy\|([\w-]+)/.exec(ref);
+  return giphy ? `https://i.giphy.com/media/${giphy[1]}/giphy.gif` : null;
+}
+
+// Reddit renders bare image links and its embed syntax as pictures; make them saved images.
+function inlineImages(text, media, addImage) {
+  return text
+    .replace(EMBED, (whole, alt, ref) => {
+      if (/^https?:/i.test(ref)) return whole;
+      const url = embedUrl(ref, media);
+      return url ? addImage(url, alt) : whole;
+    })
+    .replace(BARE_URL, (whole, lead, url) => (isImageUrl(url) ? `${lead}${addImage(url)}` : whole));
+}
+
+function renderComments(children, depth, maxDepth, addImage) {
   const blocks = [];
   for (const child of children) {
     if (child.kind === 'more') {
@@ -80,10 +115,11 @@ function renderComments(children, depth, maxDepth) {
     }
     if (child.kind !== 't1') continue;
     const c = child.data;
-    blocks.push(quote(`**u/${c.author}** · ${c.score} points · ${isoDate(c.created_utc)}\n\n${(c.body || '').trim()}`, depth));
+    const body = inlineImages((c.body || '').trim(), c.media_metadata, addImage);
+    blocks.push(quote(`**u/${c.author}** · ${c.score} points · ${isoDate(c.created_utc)}\n\n${body}`, depth));
     const replies = c.replies?.data?.children || [];
     if (!replies.length) continue;
-    if (depth < maxDepth) blocks.push(...renderComments(replies, depth + 1, maxDepth));
+    if (depth < maxDepth) blocks.push(...renderComments(replies, depth + 1, maxDepth, addImage));
     else blocks.push(quote(`*${plural(countAll(replies), 'deeper reply', 'deeper replies')} not included*`, depth + 1));
   }
   return blocks;

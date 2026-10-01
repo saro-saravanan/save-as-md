@@ -12,10 +12,11 @@ export function redditThread({ post = {}, comments = [] } = {}) {
   ];
 }
 
-export function comment(author, body, replies = []) {
+export function comment(author, body, replies = [], extra = {}) {
   return { kind: 't1', data: {
     author, body, score: 5, created_utc: JAN1,
     replies: replies.length ? { kind: 'Listing', data: { children: replies } } : '',
+    ...extra,
   } };
 }
 

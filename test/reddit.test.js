@@ -73,3 +73,51 @@ describe('redditToMarkdown', () => {
     expect(r.markdown).toContain('Link: <https://example.com/article>');
   });
 });
+
+// Reddit shows bare image links in posts and comments as pictures, so SaveMD must save them as images.
+describe('images inside post and comment text', () => {
+  const PREVIEW = 'https://preview.redd.it/ckpyc9uxrpsh1.png?width=596&format=png&auto=webp&s=d5a1';
+
+  it('turns a bare preview.redd.it link in a text post into a saved image', () => {
+    const r = redditToMarkdown(redditThread({ post: { selftext: `Look at this:\n\n${PREVIEW}\n\nWow.` } }), 'post');
+    expect(r.images).toEqual([{ index: 0, url: PREVIEW, data: null, ext: null, alt: '' }]);
+    expect(r.markdown).toContain('Look at this:\n\n![](__IMG_0__)\n\nWow.');
+    expect(r.markdown).not.toContain(PREVIEW);
+  });
+
+  it('does the same inside comments, keeping the blockquote nesting', () => {
+    const r = redditToMarkdown(redditThread({ comments: [comment('alice', 'Top', [comment('bob', `Here:\n\nhttps://i.redd.it/abc123.jpeg`)])] }), 'top');
+    expect(r.images[0].url).toBe('https://i.redd.it/abc123.jpeg');
+    expect(r.markdown).toContain('> > ![](__IMG_0__)');
+  });
+
+  it('recognises image links from other hosts by their extension', () => {
+    const r = redditToMarkdown(redditThread({ post: { selftext: 'See https://i.imgur.com/xyz.png and https://example.com/page' } }), 'post');
+    expect(r.images.map((i) => i.url)).toEqual(['https://i.imgur.com/xyz.png']);
+    expect(r.markdown).toContain('See ![](__IMG_0__) and https://example.com/page');
+  });
+
+  it('leaves image URLs that are link targets as links', () => {
+    const r = redditToMarkdown(redditThread({ post: { selftext: `[the chart](${PREVIEW})` } }), 'post');
+    expect(r.images).toEqual([]);
+    expect(r.markdown).toContain(`[the chart](${PREVIEW})`);
+  });
+
+  it('saves Giphy embeds, using the media metadata when Reddit has it', () => {
+    const r = redditToMarkdown(redditThread({ comments: [
+      comment('a', '![gif](giphy|AAA111)', [], { media_metadata: { 'giphy|AAA111': { status: 'valid', s: { gif: 'https://i.giphy.com/from-metadata.gif' } } } }),
+      comment('b', '![gif](giphy|BBB222)', [], { media_metadata: { 'giphy|BBB222': { status: 'invalid' } } }),
+    ] }), 'top');
+    expect(r.images.map((i) => i.url)).toEqual(['https://i.giphy.com/from-metadata.gif', 'https://i.giphy.com/media/BBB222/giphy.gif']);
+    expect(r.markdown).toContain('> ![gif](__IMG_0__)');
+    expect(r.markdown).toContain('> ![gif](__IMG_1__)');
+  });
+
+  it('resolves images uploaded into comments by media id', () => {
+    const r = redditToMarkdown(redditThread({ comments: [
+      comment('a', 'Screenshot:\n\n![img](m9xyz)', [], { media_metadata: { m9xyz: { status: 'valid', e: 'Image', s: { u: 'https://preview.redd.it/m9xyz.png?width=800&s=1' } } } }),
+    ] }), 'top');
+    expect(r.images[0].url).toBe('https://preview.redd.it/m9xyz.png?width=800&s=1');
+    expect(r.markdown).toContain('> ![img](__IMG_0__)');
+  });
+});
