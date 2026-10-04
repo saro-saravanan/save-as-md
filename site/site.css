@@ -70,6 +70,7 @@ p { margin: 0 0 1em; text-wrap: pretty; }
   box-shadow: inset 0 0 0 3px var(--stock), inset 0 0 0 4px var(--ink);
   transition: transform .25s var(--ease), background-color .25s var(--ease);
 }
+button.btn { cursor: pointer; }
 .btn:hover { transform: translateY(-2px); }
 .btn:active { transform: translateY(0); }
 .btn-primary { background: var(--tomato); border-color: var(--tomato-deep); color: #fff; box-shadow: inset 0 0 0 3px var(--tomato), inset 0 0 0 4px rgba(255, 255, 255, .6), 0 8px 16px -8px rgba(110, 24, 16, .6); }
