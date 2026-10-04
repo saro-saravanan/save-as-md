@@ -4,7 +4,8 @@ description: Save any web page as clean Markdown, with every image. The site is 
 colors:
   tomato: "#d33a2c"
   tomato-deep: "#a3281e"
-  tomato-press: "#c3301f"
+  tomato-hover: "#c3301f"
+  tomato-cast: "#6e1810"
   pea-deep: "#2f6b2c"
   marigold: "#f2c24d"
   brand-green: "#1f883d"
@@ -12,9 +13,11 @@ colors:
   ink-soft: "#3a4962"
   buff: "#f3e8c6"
   buff-deep: "#e9daa9"
+  buff-back: "#dccb94"
   stock: "#f8f2df"
   ground: "#efe3bd"
   card-white: "#fffaf0"
+  paper-white: "#ffffff"
 typography:
   display:
     fontFamily: "'Roboto Serif', Georgia, serif"
@@ -49,6 +52,34 @@ typography:
     lineHeight: 1
     letterSpacing: "0.06em"
     fontVariation: "'wdth' 72"
+  lip:
+    fontFamily: "'Roboto Serif', Georgia, serif"
+    fontSize: "clamp(22px, 2.5vw, 32px)"
+    fontWeight: 900
+    lineHeight: 1
+    letterSpacing: "0.14em"
+    fontVariation: "'wdth' 72"
+  headline-compact:
+    fontFamily: "'Roboto Serif', Georgia, serif"
+    fontSize: "1.8rem"
+    fontWeight: 900
+    lineHeight: 0.98
+    letterSpacing: "0.02em"
+    fontVariation: "'wdth' 66"
+  label-large:
+    fontFamily: "'Roboto Serif', Georgia, serif"
+    fontSize: "17px"
+    fontWeight: 800
+    lineHeight: 1
+    letterSpacing: "0.1em"
+    fontVariation: "'wdth' 72"
+  label-nav:
+    fontFamily: "'Roboto Serif', Georgia, serif"
+    fontSize: "16px"
+    fontWeight: 700
+    lineHeight: 1
+    letterSpacing: "0.1em"
+    fontVariation: "'wdth' 72"
   label:
     fontFamily: "'Roboto Serif', Georgia, serif"
     fontSize: "15px"
@@ -56,9 +87,36 @@ typography:
     lineHeight: 1.1
     letterSpacing: "0.14em"
     fontVariation: "'wdth' 72"
+  label-kind:
+    fontFamily: "'Roboto Serif', Georgia, serif"
+    fontSize: "13px"
+    fontWeight: 700
+    lineHeight: 1
+    letterSpacing: "0.2em"
+    fontVariation: "'wdth' 72"
   body:
     fontFamily: "'Old Standard TT', Georgia, serif"
     fontSize: "18px"
+    fontWeight: 400
+    lineHeight: 1.55
+  body-compact:
+    fontFamily: "'Old Standard TT', Georgia, serif"
+    fontSize: "17px"
+    fontWeight: 400
+    lineHeight: 1.55
+  body-table:
+    fontFamily: "'Old Standard TT', Georgia, serif"
+    fontSize: "0.98rem"
+    fontWeight: 400
+    lineHeight: 1.55
+  note:
+    fontFamily: "'Old Standard TT', Georgia, serif"
+    fontSize: "0.95rem"
+    fontWeight: 400
+    lineHeight: 1.55
+  caption:
+    fontFamily: "'Old Standard TT', Georgia, serif"
+    fontSize: "0.85rem"
     fontWeight: 400
     lineHeight: 1.55
   mono:
@@ -87,7 +145,7 @@ components:
     rounded: "{rounded.button}"
     padding: "17px 26px"
   button-primary-hover:
-    backgroundColor: "{colors.tomato-press}"
+    backgroundColor: "{colors.tomato-hover}"
   button-ghost:
     backgroundColor: "{colors.stock}"
     textColor: "{colors.ink}"
@@ -163,7 +221,7 @@ The world refuses the extension-landing default of headline, browser mockup and 
 A flat seed-catalogue palette: three printed inks and a navy key line over warm buff paper, with the inks committed at full strength on small areas.
 
 ### Primary
-- **Packet Tomato** (#d33a2c): the one call to action (Install button), the hero script line, the "Coming soon" badge, the first packet's frame and variety name, and the focus outline. **Tomato Deep** (#a3281e) is its border and the colour of privacy pledge terms; **Tomato Press** (#c3301f) is the primary button's hover.
+- **Packet Tomato** (#d33a2c): the one call to action (Install button), the hero script line, the "Coming soon" badge, the first packet's frame and variety name, and the focus outline. **Tomato Deep** (#a3281e) is its border and the colour of privacy pledge terms; **Tomato Hover** (#c3301f) is the primary button's hover fill. **Tomato Cast** (#6e1810) exists only at 60% alpha, as the tint of the primary button's shadow.
 
 ### Secondary
 - **Pea Deep** (#2f6b2c): the structural green. Panel double-rule frames, the rack lip's inner rule and lettering, the footer's double top rule, sprig ornaments beside headlines, the seal's sprig, the second packet's frame, and text links inside panels.
@@ -174,14 +232,17 @@ A flat seed-catalogue palette: three printed inks and a navy key line over warm 
 ### Neutral
 - **Ink Navy** (#1a2a44): all text, key lines, the wire rack, table rules, the third packet's frame, and the small Install button's fill. Hairline rules use it at 35% (`rgba(26, 42, 68, .35)`); packet shadows use it at 35-60%.
 - **Ink Soft** (#3a4962): secondary text (store note, captions, credits, "updated" line).
-- **Packet Buff** (#f3e8c6): packet front stock. **Buff Deep** (#e9daa9) is the sheets stacked behind a packet.
+- **Packet Buff** (#f3e8c6): packet front stock. **Buff Deep** (#e9daa9) is the first sheet stacked behind a packet; **Buff Back** (#dccb94) is the rearmost sheet, one step darker so the stack reads as depth.
 - **Card Stock** (#f8f2df): panels, packet backs, rack lip, ghost button.
 - **Ground** (#efe3bd): the page itself, under the fine paper-ground texture.
-- **Card White** (#fffaf0): inset cards inside panels (the notice figure, the almanac table wrap) and the ghost-button hover. The whitest thing on the page, reserved for things being shown.
+- **Card White** (#fffaf0): inset cards inside panels (the notice figure, the almanac table wrap) and the ghost-button hover. Reserved for things being shown.
+- **Paper White** (#ffffff): lettering on tomato (primary button, badge), their inner rules at 60-65% alpha, and the packet window behind each page capture, where a real web page's own white begins. Never a surface or panel fill.
 - **Brand Green** (#1f883d): the SaveMD mark only, as fixed by PRODUCT.md's icon commitment. It is not a UI colour.
 
 ### Named Rules
-**The Three Inks Rule.** Colour comes from tomato, pea-deep and marigold printed over buff, keyed in ink navy. No other hues, no tints between them, no gradients.
+**The Three Inks Rule.** Colour comes from tomato, pea-deep and marigold printed over buff, keyed in ink navy. No other hues, no tints between them, no gradients. Translucent values are these same colours at alpha (ink at 30-60% for hairlines and casts, stock or buff at 55-60% and white at 60-65% for inner rules), never new hues.
+
+The packet back's Markdown fades out through a `mask-image` gradient from `#000` to transparent; that black is mask alpha, never painted, and is not a palette colour.
 
 **The Multiply Rule.** Paper surfaces are never flat fills: the colour sits under a greyscale texture with `background-blend-mode: multiply` (`paper-ground.webp` on the page, `paper-stock.webp` on panels, packets and the lip; both from `scripts/make-paper.mjs`). Change the colour, never the texture, to make a new stock.
 
@@ -201,11 +262,18 @@ All four are self-hosted woff2 in `site/fonts/` (Latin subset, `font-display: sw
 ### Hierarchy
 - **Display** (900, clamp(3.4rem, 5.8vw, 5.5rem), 0.9, width 62%, uppercase): the hero headline, masked with `ink-wear.webp` for print wear. The privacy page title uses the same voice at clamp(2.6rem, 6vw, 4.6rem).
 - **Script** (Yellowtail 400, clamp(2.4rem, 4.2vw, 4rem), 1): the hero's second line, in tomato, rotated -4deg from its left edge. Packet variety names use it at clamp(1.45rem, 2vw, 2.1rem) in the packet's accent.
-- **Headline** (900, clamp(1.9rem, 3vw, 2.6rem), 0.98, width 66%, uppercase): panel heads, followed by a sprig. 1.8rem under 640px.
+- **Headline** (900, clamp(1.9rem, 3vw, 2.6rem), 0.98, width 66%, uppercase): panel heads, followed by a sprig. **Headline Compact** (1.8rem) is the same role under 640px.
+- **Lip** (900, clamp(22px, 2.5vw, 32px), 1, 0.14em, width 72%, uppercase): the rack lip's "Save now / Read later"; 17px at 0.08em under 640px.
 - **Title** (800, 19-22px, 1.15, width 72%, uppercase): FAQ questions, table row heads, privacy pledge terms.
-- **Button** (800, 20px, 1, 0.06em, width 72%, uppercase): buttons; 17px on the small button, 18px on full-width mobile buttons.
-- **Label** (700-800, 10.5-16px, 0.07-0.2em, width 72%, uppercase): nav, facts strip, table column heads, packet kind line and almanac stats, ledger keys, badge, footer nav. Smaller labels carry wider tracking.
-- **Body** (Old Standard TT 400, 18px, 1.55; 17px under 640px): all reading text, max 62-64ch in panels, 34ch for the hero lede at clamp(1.1rem, 1.45vw, 1.28rem). Italic for notes and captions.
+- **Button** (800, 20px, 1, 0.06em, width 72%, uppercase): buttons; 18px on full-width mobile buttons.
+- **Label Large** (800-900, 17px, 0.1-0.12em, width 72%, uppercase): the small Install button, panel text links, the packet back's "Saved as Markdown" title.
+- **Label Nav** (700, 16px, 1, 0.08-0.1em, width 72%, uppercase): masthead and footer navigation.
+- **Label** (700-800, 15px, 0.07-0.14em, width 72%, uppercase): facts strip, table column heads, badge.
+- **Label Kind** (700, 13px, 0.2em, width 72%, uppercase): the packet's kind line ("Wikipedia article"). The almanac stats and ledger keys go smaller still (10.5px at 0.12em). Smaller labels carry wider tracking.
+- **Body** (Old Standard TT 400, 18px, 1.55): all reading text, max 62-64ch in panels, 34ch for the hero lede at clamp(1.1rem, 1.45vw, 1.28rem). **Body Compact** (17px) replaces it under 640px.
+- **Body Table** (0.98rem): privacy-policy tables, a hair under body.
+- **Note** (0.95rem): the store note and figure captions (italic, ink-soft) and the footer.
+- **Caption** (0.85rem, ink-soft): the footer credits line, the smallest reading text.
 - **Mono** (Courier Prime 400, 11px, 1.45): saved Markdown on packet backs, fading out with a mask. Inline `code` and `kbd` are Courier Prime 700 at 0.82em; `kbd` gets a 1px outline with a 2px bottom edge.
 
 ### Named Rules
@@ -225,7 +293,7 @@ Edge gutters are one fluid value, clamp(14px, 3.4vw, 44px), used by the masthead
 ### Breakpoints
 - **1180px:** the hero stacks; copy max 640px, rack max 820px centred. Facts become 2 x 2.
 - **920px:** top nav hides (the small Install button stays, pushed right); every panel goes full width; footer stacks.
-- **640px:** body 17px; hero padding 26px 18px 28px; action buttons go full width and drop their sprigs; facts become one column. The rack becomes a shelf: the wire is hidden, packets sit straight at 76% width in a horizontal scroll-snap row, the lip shrinks to 64px. The almanac table unstacks into blocks, its "You get" column set in italic ink-soft.
+- **640px:** body 17px; hero padding 26px 18px 28px; action buttons go full width and drop their sprigs; facts become one column. The rack becomes a shelf: the wire is hidden, packets sit straight at 76% width in a horizontal scroll-snap row, the lip shrinks to 64px with 17px lettering. The almanac table unstacks into blocks, its "You get" column set in italic ink-soft.
 
 ## Elevation & Depth
 
@@ -237,7 +305,7 @@ Depth is print depth. Surfaces are flat paper; what stands off the page does so 
 - **Lip cast** (`0 14px 20px -12px rgba(26, 42, 68, .55)`): under the rack lip.
 - **Button cast** (`0 8px 16px -8px rgba(110, 24, 16, .6)`): under the primary button only, tinted toward tomato.
 - **Seal drop** (`filter: drop-shadow(0 3px 4px rgba(26, 42, 68, .35))`): the guarantee seal.
-- **Stacked sheets:** two pseudo-element sheets behind each packet, offset 6px/-7px and 12px/-14px, in buff-deep and a darker buff, each with a 1px 30% ink edge.
+- **Stacked sheets:** two pseudo-element sheets behind each packet, offset 6px/-7px and 12px/-14px, in buff-deep and buff-back, each with a 1px 30% ink edge.
 
 ### Named Rules
 **The Paper Stands Off Rule.** Only objects that physically sit in front (packets, lip, seal, the primary button) cast a shadow, and every cast falls downward with a negative spread and an ink or tomato tint. Panels and inset cards are printed on the sheet; they get rules, not shadows.
@@ -251,9 +319,9 @@ Small, slightly softened corners, as on die-cut card: 2px on the packet window, 
 ### Buttons
 Printed like a packet's own badge: a double rule inside the colour.
 - **Shape:** 6px corners, 2px border, plus an inner ring drawn as `inset 0 0 0 3px <fill>, inset 0 0 0 4px <rule>`.
-- **Primary:** tomato fill, tomato-deep border, white text and a 60% white inner rule, flanked by two sprigs (the right one mirrored); 17px 26px padding.
+- **Primary:** tomato fill, tomato-deep border, white text and a 60% white inner rule, flanked by two sprigs (the right one mirrored); 17px 26px padding. Hover fills to tomato hover.
 - **Ghost:** card-stock fill, ink border and inner rule, ink text; hover to card white.
-- **Small:** ink fill, buff text, a 55% buff inner rule, 12px 20px, 17px type. The masthead Install.
+- **Small:** ink fill, buff text, a 55% buff inner rule, 12px 20px, Label Large type. The masthead Install.
 - **Hover / Focus:** lift 2px (`translateY(-2px)`) over 0.25s on the house ease, back to 0 on press; focus is the global 3px tomato outline at 3px offset.
 
 ### Panels
@@ -261,6 +329,7 @@ Printed like a packet's own badge: a double rule inside the colour.
 - **Background:** card stock multiplied with the stock texture.
 - **Border:** 2px pea-deep with the double-rule inset (see Elevation).
 - **Internal Padding:** clamp(26px, 3.4vw, 46px).
+- **Reuse:** the privacy page's main column is the same panel (more padding: clamp(28px, 5vw, 64px)), not a restyled copy.
 - **Anatomy:** headline + sprig, a dotted rule (a 1.5px ink line with a 3.5px ink dot centred on it, max 260px in panels and 420px in the hero), then content.
 
 ### Seed packet (signature)
