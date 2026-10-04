@@ -1,6 +1,6 @@
 # SaveMD
 
-Save any web page as clean Markdown, with every image, in one click. Built to replace print-to-PDF.
+Save any web page as clean Markdown, with every image, in one click. Built to replace print-to-PDF. See it in action at **[saro-saravanan.github.io/save-as-md](https://saro-saravanan.github.io/save-as-md/)**.
 
 - **Clean text:** the article, not the menus, ads and cookie banners. Falls back to the full page when there is no article, or pick the exact area to save.
 - **Every image, saved locally:** including lazy-loaded images, and images embedded in Reddit posts and comments. Image links point at the local copies, so the page reads offline.
