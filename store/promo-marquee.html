@@ -1,0 +1,44 @@
+<!doctype html>
+<!-- The Chrome Web Store marquee promo tile (1400x560), rendered to promo-marquee.png by scripts/store-assets.mjs. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../site/fonts/fonts.css">
+<style>
+  :root { --ink: #1a2a44; --tomato: #d33a2c; --pea-deep: #2f6b2c; --stock: #f8f2df; --display: 'Roboto Serif', Georgia, serif; --script: 'Yellowtail', cursive; --serif: 'Old Standard TT', Georgia, serif; }
+  html, body { margin: 0; width: 1400px; height: 560px; overflow: hidden; }
+  body { background: #efe3bd url(../site/assets/paper-ground.webp); background-blend-mode: multiply; color: var(--ink); }
+  .frame { position: absolute; inset: 18px; border: 3px solid var(--pea-deep); border-radius: 6px; box-shadow: inset 0 0 0 8px rgba(248, 242, 223, .6), inset 0 0 0 10px var(--pea-deep); display: grid; grid-template-columns: 560px 1fr; align-items: center; padding: 0 64px; }
+  .brand { display: flex; align-items: center; gap: 14px; font: 900 34px/1 var(--display); font-stretch: 72%; letter-spacing: .06em; text-transform: uppercase; margin-bottom: 22px; }
+  .brand svg { width: 46px; height: 46px; }
+  h1 { margin: 0; font: 900 112px/.88 var(--display); font-stretch: 62%; text-transform: uppercase; letter-spacing: .01em; }
+  .script { font: 400 68px/1 var(--script); color: var(--tomato); margin: 10px 0 0 6px; transform: rotate(-3deg); transform-origin: left; }
+  .line { font: 400 24px/1.4 var(--serif); margin-top: 26px; max-width: 30ch; }
+  .rack { position: relative; height: 420px; width: 690px; justify-self: end; }
+  .page { position: absolute; top: 40px; width: 250px; background: #fff; border: 2px solid var(--ink); border-radius: 4px; box-shadow: 0 14px 28px -12px rgba(26, 42, 68, .55); overflow: hidden; }
+  .page img { display: block; width: 100%; height: auto; }
+  .p1 { left: 0; rotate: -4deg; top: 70px; }
+  .p2 { left: 212px; z-index: 2; }
+  .p3 { left: 424px; z-index: 3; rotate: 3.5deg; top: 80px; }
+  .page span { display: block; white-space: nowrap; padding: 10px 12px; font: 800 16px/1 var(--display); font-stretch: 72%; letter-spacing: .12em; text-transform: uppercase; background: var(--stock); border-top: 2px solid var(--ink); }
+</style>
+</head>
+<body>
+  <div class="frame">
+    <div>
+      <div class="brand">
+        <svg viewBox="0 0 100 100" aria-hidden="true"><rect width="100" height="100" rx="20" fill="#1f883d"/><path fill="#fff" d="M43 16h14v34h-14z M25 44h50L50 70z M20 74h60v11H20z M20 60h11v25H20z M69 60h11v25H69z"/></svg>
+        SaveMD
+      </div>
+      <h1>Save the page.</h1>
+      <div class="script">Keep every image.</div>
+      <p class="line">Any web page to clean Markdown, with its images, in one click.</p>
+    </div>
+    <div class="rack">
+      <div class="page p1"><img src="../site/assets/tomato-front.webp" alt=""><span>3/3 images saved</span></div>
+      <div class="page p2"><img src="../site/assets/pea-front.webp" alt=""><span>1,080 words</span></div>
+      <div class="page p3"><img src="../site/assets/fetch-front.webp" alt=""><span>22 code blocks</span></div>
+    </div>
+  </div>
+</body>
+</html>

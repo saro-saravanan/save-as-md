@@ -36,6 +36,7 @@ Source code: https://github.com/saro-saravanan/save-as-md
 - **Store icon:** `icons/icon-128.png`
 - **Screenshots (1280x800):** `screenshot-1-article.png`, `screenshot-2-docs.png`, `screenshot-3-options.png`
 - **Small promo tile (440x280):** `promo-small.png`
+- **Marquee promo tile (1400x560):** `promo-marquee.png` (optional; shown only if the item is featured)
 - **Official URL:** leave as none (it needs a verified domain)
 - **Homepage URL:** https://saro-saravanan.github.io/save-as-md/
 - **Support URL:** https://github.com/saro-saravanan/save-as-md/issues

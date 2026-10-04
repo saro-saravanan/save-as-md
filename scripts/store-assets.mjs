@@ -1,5 +1,5 @@
 // Captures the Chrome Web Store images from the real extension: 1280x800 screenshots of pages just
-// saved (with SaveMD's notice showing) and of the Options page, plus the 440x280 promo tile.
+// saved (with SaveMD's notice showing) and of the Options page, plus the 440x280 and 1400x560 promo tiles.
 // Run `node build.mjs --e2e && node scripts/store-assets.mjs`; output goes to store/.
 import puppeteer from 'puppeteer';
 import { mkdtemp, mkdir, writeFile, rm } from 'node:fs/promises';
@@ -45,11 +45,13 @@ for (const { name, url } of SHOTS) {
   await page.close();
 }
 
-const tile = await browser.newPage();
-await tile.setViewport({ width: 440, height: 280 });
-await tile.goto(pathToFileURL(resolve('store/promo-small.html')).href, { waitUntil: 'networkidle0' });
-await tile.evaluate(() => document.fonts.ready);
-await tile.screenshot({ path: join(OUT, 'promo-small.png') });
+for (const [name, width, height] of [['promo-small', 440, 280], ['promo-marquee', 1400, 560]]) {
+  const tile = await browser.newPage();
+  await tile.setViewport({ width, height });
+  await tile.goto(pathToFileURL(resolve(`store/${name}.html`)).href, { waitUntil: 'networkidle0' });
+  await tile.evaluate(() => document.fonts.ready);
+  await tile.screenshot({ path: join(OUT, `${name}.png`) });
+}
 
 await browser.close();
 await rm(profile, { recursive: true, force: true }).catch(() => {});
