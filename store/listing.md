@@ -13,9 +13,14 @@ Upload `savemd.zip`. Name, summary and icon come from `manifest.json`:
 **Description:**
 
 ```
-Save any web page as clean Markdown, with every image, in one click. Built to replace print-to-PDF.
+Save any article, recipe, how-to or Reddit thread in one click: the words as a clean text file (Markdown), every picture saved beside it. Read it offline, search it, or paste it into an AI chat, even after the page is gone.
 
-Articles, recipes, docs, Reddit threads: SaveMD keeps the content and drops the menus, ads and cookie banners. Each page becomes a folder with a .md file and its images, saved through Chrome's downloads into Downloads/WebClips. The files open in any Markdown app (Obsidian, Typora, MarkText, VS Code) or go straight into an AI chat.
+WHY SAVEMD
+• Unlike Print to PDF: just the content, without the ads and menus, as text you can search and edit.
+• Unlike text-only clippers: every image is downloaded, not left as a link. Reddit comments come too.
+• Free and open source: no account. Nothing you save leaves your computer.
+
+Each page becomes a folder with a .md file and its images, saved through Chrome's downloads into Downloads/WebClips. The files open in any Markdown app (Obsidian, Typora, MarkText, VS Code) or go straight into an AI chat.
 
 WHAT IT DOES
 • Clean text: the article, not the clutter. Falls back to the full page when there is no article, or pick the exact area to save.
