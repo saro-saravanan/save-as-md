@@ -96,7 +96,8 @@ h1 .script { display: block; white-space: nowrap; font: 400 clamp(2.4rem, 4.2vw,
 .rule-dot { border: 0; height: 9px; margin: 22px 0 20px; max-width: 420px; background: radial-gradient(circle, var(--ink) 3.5px, transparent 4px) center / 9px 9px no-repeat, linear-gradient(var(--ink), var(--ink)) center / 100% 1.5px no-repeat; }
 .lede { font-size: clamp(1.1rem, 1.45vw, 1.28rem); max-width: 34ch; }
 .actions { display: flex; flex-wrap: wrap; gap: 14px; margin: 26px 0 12px; }
-.store-note { font-size: .95rem; font-style: italic; color: var(--ink-soft); max-width: 40ch; margin-bottom: 26px; }
+.store-note, .install-note { font-size: .95rem; font-style: italic; color: var(--ink-soft); max-width: 40ch; margin-bottom: 26px; }
+.install-note { max-width: none; margin: 18px 0 0; }
 .facts { grid-column: 1 / -1; list-style: none; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); margin: 10px 0 0; padding: 0; border-top: 1.5px solid var(--ink); border-bottom: 1.5px solid var(--ink); }
 .facts li { display: flex; align-items: center; justify-content: center; gap: 10px; padding: 14px 12px; font-weight: 700; font-size: 15px; line-height: 1.15; letter-spacing: .07em; }
 .facts li + li { border-left: 1px solid rgba(26, 42, 68, .35); }

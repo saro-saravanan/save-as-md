@@ -11,7 +11,12 @@ Save any web page as clean Markdown, with every image, in one click. Built to re
 **Private by design:** SaveMD runs entirely in your browser. It sends nothing anywhere, has no account, no analytics and no server. Pages are written to your own disk through Chrome's downloads. See the [privacy policy](https://saro-saravanan.github.io/save-as-md/privacy.html).
 
 ## Install
-The Chrome Web Store listing is coming. Until then, install from source:
+The Chrome Web Store listing is coming. Until then:
+
+1. Download [savemd.zip](https://github.com/saro-saravanan/save-as-md/releases/latest/download/savemd.zip) from the latest release and unzip it somewhere it can stay.
+2. Open `chrome://extensions`, turn on Developer mode, choose **Load unpacked**, and select the unzipped `savemd` folder. Pin SaveMD.
+
+To build from source instead:
 
 1. `npm install`
 2. `npm run build`
@@ -48,6 +53,7 @@ Contributions are welcome, especially support for more sites (the Reddit support
 - `npm run e2e` launches a throwaway Chrome for Testing with the extension loaded and saves real pages end to end.
 - `npm run watch` rebuilds on change. Reload the extension after each rebuild.
 - `docs/manual-test.md` is the hands-on checklist for what automation can't cover.
+- To release, bump `version` in `manifest.json`, commit, and push a matching tag (`git tag v0.2.0 && git push --tags`). GitHub Actions tests, builds and attaches `savemd.zip` to the release; the site's download button always serves the latest one.
 
 To add a page that converts badly to the regression set, run `npm run add-fixture -- "<folder>\_source.html" short-name`, then `npm test`. Fix the conversion until `test/fixtures/expected/short-name.md` looks right, and save it with `npx vitest run -u`.
 

@@ -1,0 +1,33 @@
+# Builds the extension and publishes it as savemd.zip on a GitHub release whenever a version tag
+# (v0.1.0, v0.2.0, ...) is pushed. The same zip installs with Load unpacked and uploads to the Chrome Web Store.
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+        env:
+          PUPPETEER_SKIP_DOWNLOAD: 'true'
+      - run: npm test
+      - run: npm run build
+      - name: Check the tag matches the manifest version
+        run: test "v$(node -p "require('./manifest.json').version")" = "$GITHUB_REF_NAME"
+      - name: Zip the extension
+        run: cd dist && zip -r ../savemd.zip .
+      - name: Publish the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "$GITHUB_REF_NAME" savemd.zip --title "SaveMD $GITHUB_REF_NAME" --generate-notes

@@ -49,7 +49,7 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with the fini
         <a class="btn btn-primary" href="#install"><svg class="sprig" aria-hidden="true"><use href="#sprig"/></svg>Install SaveMD<svg class="sprig flip" aria-hidden="true"><use href="#sprig"/></svg></a>
         <a class="btn btn-ghost" href="#rack">Turn a packet over</a>
       </div>
-      <p class="store-note">For Chrome. The Chrome Web Store listing is coming soon; today it installs from the source code.</p>
+      <p class="store-note">For Chrome. The Chrome Web Store listing is coming soon; today you can download it from this page.</p>
     </div>
 
     <div class="rack" id="rack" aria-label="Pages saved with SaveMD. Turn a packet over to see its Markdown.">
@@ -193,12 +193,14 @@ const response = await fetch("https://example.org/post", {
       <h2 class="head" id="install-title">Install SaveMD<svg class="sprig" aria-hidden="true"><use href="#sprig"/></svg></h2>
       <hr class="rule-dot">
       <p class="store-status"><span class="badge">Coming soon</span> Chrome Web Store listing</p>
-      <p>Until then, install it from the source code. It takes a few minutes and needs <a href="https://nodejs.org/">Node.js</a>.</p>
+      <p>Until then, download it and add it to Chrome yourself. It takes about two minutes and needs no other software.</p>
+      <p><a class="btn btn-primary" href="https://github.com/saro-saravanan/save-as-md/releases/latest/download/savemd.zip">Download SaveMD</a></p>
       <ol class="install-steps">
-        <li>Download the code from <a href="https://github.com/saro-saravanan/save-as-md">GitHub</a>, then run <code>npm install</code> and <code>npm run build</code> in its folder.</li>
-        <li>Open <code>chrome://extensions</code> and turn on <em>Developer mode</em>.</li>
-        <li>Choose <em>Load unpacked</em>, select the <code>dist</code> folder, and pin SaveMD to the toolbar.</li>
+        <li>Unzip the download, and move the <code>savemd</code> folder somewhere it can stay, such as Documents. Chrome runs SaveMD from that folder.</li>
+        <li>Open <code>chrome://extensions</code> and turn on <em>Developer mode</em> (top right).</li>
+        <li>Choose <em>Load unpacked</em>, select the <code>savemd</code> folder, and pin SaveMD to the toolbar.</li>
       </ol>
+      <p class="install-note">Chrome may remind you that a developer-mode extension is on; that's expected for anything installed outside the store. Prefer to build it yourself? The <a href="https://github.com/saro-saravanan/save-as-md">source code</a> is on GitHub.</p>
     </section>
 
     <section class="panel panel-faq" aria-labelledby="faq-title">
