@@ -3,3 +3,4 @@ dist/
 .superpowers/
 dist-e2e/
 .impeccable/
+store/*.zip
